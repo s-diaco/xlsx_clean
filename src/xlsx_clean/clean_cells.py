@@ -1,15 +1,13 @@
-import sys
-from openpyxl import Workbook, load_workbook
-import time
-from beaupy import confirm, prompt, select, select_multiple
-
-# from beaupy.spinners import *
-from rich.console import Console
-import glob
-import fnmatch
-import pathlib
 import os
+import pathlib
+
 import pandas
+from beaupy import prompt, select
+from openpyxl import load_workbook
+from rich.console import Console
+
+# import questionary
+
 
 NEW_VALUE = ""
 # load questions from text file
