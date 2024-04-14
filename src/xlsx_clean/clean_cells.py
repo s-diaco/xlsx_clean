@@ -11,7 +11,7 @@ from rich.console import Console
 
 NEW_VALUE = ""
 # load questions from text file
-with open("src/xlsx_clean/strings.txt") as f:
+with open("strings.txt") as f:
     content = f.readlines()
 # remove whitespace characters like `\n` at the end of each line
 content = [x.strip() for x in content]
@@ -19,7 +19,7 @@ q1 = content[0]
 q2 = content[1]
 q3 = content[2]
 
-path_df = pandas.read_csv("src/xlsx_clean/file_data.csv")
+path_df = pandas.read_csv("file_data.csv")
 path_df["set_dir"] = [pathlib.Path(path).parent.parent for path in path_df["dir"]]
 path_list = [pathlib.Path(path) for path in path_df["dir"]]
 parent_path = list(
@@ -69,7 +69,7 @@ def find_last_workbook(files):
 
 def get_workbook_names(files, batch_serial):
     last_workbook = find_last_workbook(files)
-    return last_workbook, path_ / pattern.replace("[SERIAL]", batch_serial)
+    return last_workbook, path_ / pattern.replace("[SERIAL]", batch_serial.split("/")[0])
 
 
 ref_workbook_name, new_workbook_name = get_workbook_names(files, batch_serial)
@@ -86,9 +86,10 @@ for workbook_data in cells_to_clear.split(","):
     if is_range:
         cell_range = worksheet[worksheet_data[1]]
         # Assign singular value to all cells
-        for cell in cell_range:
-            # Writes a new value PRESERVING cell styles.
-            cell[0].value = NEW_VALUE
+        for cell_row in cell_range:
+            for cell in cell_row:
+                # Writes a new value PRESERVING cell styles.
+                cell.value = NEW_VALUE
     else:
         worksheet[worksheet_data[1]].value = NEW_VALUE
 
@@ -102,6 +103,6 @@ for workbook_data in serial_cell.split(","):
 if not new_workbook_name.is_file():
     workbook.save(new_workbook_name)
     if os.name == "nt":
-        os.system("start excel.exe new_workbook_name")
+        os.system(f"start excel.exe \"{new_workbook_name}\"")
 else:
     console.print("Error: File already exists.")
