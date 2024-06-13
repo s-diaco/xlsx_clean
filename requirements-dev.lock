@@ -12,16 +12,12 @@ beaupy==3.8.2
     # via xlsx-clean
 emoji==2.11.0
     # via beaupy
-et-xmlfile==1.1.0
-    # via openpyxl
 markdown-it-py==3.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
 numpy==1.26.4
     # via pandas
-openpyxl==3.1.2
-    # via xlsx-clean
 pandas==2.2.2
     # via xlsx-clean
 pygments==2.17.2
@@ -33,6 +29,8 @@ python-yakh==0.3.2
     # via questo
 pytz==2024.1
     # via pandas
+pywin32==306
+    # via xlsx-clean
 questo==0.2.3
     # via beaupy
 rich==13.7.1

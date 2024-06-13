@@ -3,9 +3,11 @@ import pathlib
 
 import pandas
 from beaupy import prompt, select
-from openpyxl import load_workbook
+# from openpyxl import load_workbook
 from rich.console import Console
+import win32com.client as win32
 
+excel = win32.gencache.EnsureDispatch('Excel.Application')
 # import questionary
 
 
@@ -75,34 +77,31 @@ def get_workbook_names(files, batch_serial):
 ref_workbook_name, new_workbook_name = get_workbook_names(files, batch_serial)
 # Selected Excel file
 console.print(f"Selected: {pathlib.Path(ref_workbook_name).stem}")
-workbook = load_workbook(ref_workbook_name)
+# workbook = load_workbook(ref_workbook_name)
+workbook = excel.Workbooks.Open(ref_workbook_name)
 cells_to_clear = path_df[
     (path_df["set_name"] == selected_set) & (path_df["dir"].str.endswith(selected_dir))
 ]["cells_to_clear"].iloc[0]
 for workbook_data in cells_to_clear.split(","):
     worksheet_data = workbook_data.split("!")
-    worksheet = workbook[worksheet_data[0].replace("'", "")]
+    # worksheet = workbook[worksheet_data[0].replace("'", "")]
+    worksheet = workbook.Worksheets(worksheet_data[0].replace("'", ""))
     is_range = len(worksheet_data[1].split(":")) > 1
-    if is_range:
-        cell_range = worksheet[worksheet_data[1]]
-        # Assign singular value to all cells
-        for cell_row in cell_range:
-            for cell in cell_row:
-                # Writes a new value PRESERVING cell styles.
-                cell.value = NEW_VALUE
-    else:
-        worksheet[worksheet_data[1]].value = NEW_VALUE
+    cell_range = worksheet.Range(worksheet_data[1]).Value = NEW_VALUE
 
 serial_cell = path_df[
     (path_df["set_name"] == selected_set) & (path_df["dir"].str.endswith(selected_dir))
 ]["serial_cell"].iloc[0]
 for workbook_data in serial_cell.split(","):
     worksheet_data = workbook_data.split("!")
-    worksheet = workbook[worksheet_data[0].replace("'", "")]
-    worksheet[worksheet_data[1]].value = batch_serial
+    worksheet = workbook.Worksheets(worksheet_data[0].replace("'", ""))
+    cell_range=worksheet.Range(worksheet_data[1])
+    cell_range.Value = batch_serial
 if not new_workbook_name.is_file():
-    workbook.save(new_workbook_name)
+    workbook.SaveAs(str(new_workbook_name))
+    excel.Application.Quit()
     if os.name == "nt":
         os.system(f"start excel.exe \"{new_workbook_name}\"")
 else:
     console.print("Error: File already exists.")
+    os.system(f"start excel.exe \"{new_workbook_name}\"")
