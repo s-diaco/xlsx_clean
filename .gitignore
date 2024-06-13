@@ -11,3 +11,4 @@ wheels/
 
 .DS_Store
 *.lnk
+src/xlsx_clean/temp_workbook.xlsx

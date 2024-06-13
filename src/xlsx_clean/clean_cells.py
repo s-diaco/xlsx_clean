@@ -1,13 +1,15 @@
-import os
 import pathlib
+import shutil
 
 import pandas
 from beaupy import prompt, select
+
 # from openpyxl import load_workbook
 from rich.console import Console
 import win32com.client as win32
 
-excel = win32.gencache.EnsureDispatch('Excel.Application')
+excel = win32.gencache.EnsureDispatch("Excel.Application")
+excel.Visible = True
 # import questionary
 
 
@@ -71,14 +73,18 @@ def find_last_workbook(files):
 
 def get_workbook_names(files, batch_serial):
     last_workbook = find_last_workbook(files)
-    return last_workbook, path_ / pattern.replace("[SERIAL]", batch_serial.split("/")[0])
+    return last_workbook, path_ / pattern.replace(
+        "[SERIAL]", batch_serial.split("/")[0]
+    )
 
 
 ref_workbook_name, new_workbook_name = get_workbook_names(files, batch_serial)
 # Selected Excel file
 console.print(f"Selected: {pathlib.Path(ref_workbook_name).stem}")
 # workbook = load_workbook(ref_workbook_name)
-workbook = excel.Workbooks.Open(ref_workbook_name)
+temp_workbook = str(pathlib.Path.cwd() / "temp_workbook.xlsx")
+shutil.copyfile(ref_workbook_name, temp_workbook)
+workbook = excel.Workbooks.Open(temp_workbook)
 cells_to_clear = path_df[
     (path_df["set_name"] == selected_set) & (path_df["dir"].str.endswith(selected_dir))
 ]["cells_to_clear"].iloc[0]
@@ -95,13 +101,11 @@ serial_cell = path_df[
 for workbook_data in serial_cell.split(","):
     worksheet_data = workbook_data.split("!")
     worksheet = workbook.Worksheets(worksheet_data[0].replace("'", ""))
-    cell_range=worksheet.Range(worksheet_data[1])
+    cell_range = worksheet.Range(worksheet_data[1])
     cell_range.Value = batch_serial
 if not new_workbook_name.is_file():
     workbook.SaveAs(str(new_workbook_name))
-    excel.Application.Quit()
-    if os.name == "nt":
-        os.system(f"start excel.exe \"{new_workbook_name}\"")
-else:
-    console.print("Error: File already exists.")
-    os.system(f"start excel.exe \"{new_workbook_name}\"")
+    excel.WindowState = win32.constants.xlMaximized
+    # excel.Application.Quit()
+    # if os.name == "nt":
+    # os.system(f"start excel.exe \"{new_workbook_name}\"")
