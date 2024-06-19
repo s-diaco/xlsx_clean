@@ -8,12 +8,8 @@ from beaupy import prompt, select
 from rich.console import Console
 import win32com.client as win32
 
-excel = win32.gencache.EnsureDispatch("Excel.Application")
-excel.Visible = True
-# import questionary
-
-
 NEW_VALUE = ""
+# import questionary
 # load questions from text file
 with open("strings.txt") as f:
     content = f.readlines()
@@ -84,6 +80,8 @@ console.print(f"Selected: {pathlib.Path(ref_workbook_name).stem}")
 # workbook = load_workbook(ref_workbook_name)
 temp_workbook = str(pathlib.Path.cwd() / "temp_workbook.xlsx")
 shutil.copyfile(ref_workbook_name, temp_workbook)
+excel = win32.gencache.EnsureDispatch("Excel.Application")
+excel.Visible = True
 workbook = excel.Workbooks.Open(temp_workbook)
 cells_to_clear = path_df[
     (path_df["set_name"] == selected_set) & (path_df["dir"].str.endswith(selected_dir))
