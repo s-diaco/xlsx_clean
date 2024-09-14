@@ -1,3 +1,5 @@
 Select Set
 Select Ink Color
 Serial:
+C:\Users\johar\AppData\Roaming\Microsoft\AddIns\Diaco.KimiaRazi.Inkunit.xlam
+C:\Users\johar\AppData\Roaming\Microsoft\AddIns\Persian Function For EXCEL_V2_1(www.rasekhoon.net).xla

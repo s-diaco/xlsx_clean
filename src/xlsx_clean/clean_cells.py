@@ -80,9 +80,19 @@ console.print(f"Selected: {pathlib.Path(ref_workbook_name).stem}")
 # workbook = load_workbook(ref_workbook_name)
 temp_workbook = str(pathlib.Path.cwd() / "temp_workbook.xlsx")
 shutil.copyfile(ref_workbook_name, temp_workbook)
+
+# in case of this error
+# AttributeError: module 'win32com.gen_py.00020813-0000-0000-C000-000000000046x0x1x9' has no attribute 'CLSIDToClassMap'
+# see https://stackoverflow.com/questions/52889704
 excel = win32.gencache.EnsureDispatch("Excel.Application")
 excel.Visible = True
+
+# Need to load the addins before opening the workbook
 workbook = excel.Workbooks.Open(temp_workbook)
+addin_path_1 = content[3]
+excel.Workbooks.Open(addin_path_1)
+addin_path_2 = content[4]
+excel.Workbooks.Open(addin_path_2)
 cells_to_clear = path_df[
     (path_df["set_name"] == selected_set) & (path_df["dir"].str.endswith(selected_dir))
 ]["cells_to_clear"].iloc[0]
