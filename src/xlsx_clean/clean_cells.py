@@ -1,3 +1,4 @@
+from datetime import datetime
 import pathlib
 import shutil
 
@@ -69,7 +70,8 @@ def find_last_workbook(files):
 
 def get_workbook_names(files, batch_serial):
     last_workbook = find_last_workbook(files)
-    return last_workbook, path_ / pattern.replace(
+    path_of_the_year = pathlib.Path(str(path_).replace("2024", str(datetime.now().year)))
+    return last_workbook, path_of_the_year / pattern.replace(
         "[SERIAL]", batch_serial.split("/")[0]
     )
 
@@ -112,6 +114,7 @@ for workbook_data in serial_cell.split(","):
     cell_range = worksheet.Range(worksheet_data[1])
     cell_range.Value = batch_serial
 if not new_workbook_name.is_file():
+    pathlib.Path(new_workbook_name.parents[0]).mkdir(parents=True, exist_ok=True)
     workbook.SaveAs(str(new_workbook_name))
     excel.WindowState = win32.constants.xlMaximized
     # excel.Application.Quit()
