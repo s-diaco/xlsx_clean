@@ -102,7 +102,21 @@ for workbook_data in cells_to_clear.split(","):
     worksheet_data = workbook_data.split("!")
     # worksheet = workbook[worksheet_data[0].replace("'", "")]
     worksheet = workbook.Worksheets(worksheet_data[0].replace("'", ""))
-    is_range = len(worksheet_data[1].split(":")) > 1
+    # TODO: delete
+    # is_range = len(worksheet_data[1].split(":")) > 1
+    
+    cell_range = worksheet.Range(worksheet_data[1]).ClearContents()
+
+cells_to_new_value = path_df[
+    (path_df["set_name"] == selected_set) & (path_df["dir"].str.endswith(selected_dir))
+]["notes_cell"].iloc[0]
+for workbook_data in cells_to_new_value.split(","):
+    worksheet_data = workbook_data.split("!")
+    # worksheet = workbook[worksheet_data[0].replace("'", "")]
+    worksheet = workbook.Worksheets(worksheet_data[0].replace("'", ""))
+    # TODO: delete
+    # is_range = len(worksheet_data[1].split(":")) > 1
+    
     cell_range = worksheet.Range(worksheet_data[1]).Value = NEW_VALUE
 
 serial_cell = path_df[
