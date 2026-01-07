@@ -70,7 +70,7 @@ def find_last_workbook(files):
 
 def get_workbook_names(files, batch_serial):
     last_workbook = find_last_workbook(files)
-    path_of_the_year = pathlib.Path(str(path_).replace("2024", str(datetime.now().year)))
+    path_of_the_year = pathlib.Path(str(path_).replace("2025", str(datetime.now().year)))
     return last_workbook, path_of_the_year / pattern.replace(
         "[SERIAL]", batch_serial.split("/")[0]
     )
