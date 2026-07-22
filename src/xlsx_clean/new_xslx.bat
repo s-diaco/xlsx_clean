@@ -1,1 +1,2 @@
-python .\clean_cells.py
+@echo off
+python -m xlsx_clean.clean_cells %*
