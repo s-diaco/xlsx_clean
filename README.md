@@ -17,11 +17,39 @@ The OOXML path does **not** refresh Power Query, evaluate formulas, or load `.xl
 add-ins. Open the written file in Excel for refresh/calc. Prefer `com` on Windows when
 you need add-ins and a live Excel session.
 
+## Desktop icon (no commands)
+
+### Option A — shortcut to the installed project (fast)
+
+1. Install the project once (venv + `pip/uv install`).
+2. Double-click **`desktop\Install-DesktopShortcut.bat`** (Windows).
+3. Use the **XlsxClean** icon on your Desktop.
+
+That shortcut runs `desktop\XlsxClean.vbs`, which starts the web UI and opens the
+browser with no console window.
+
+Linux:
+
+```bash
+python desktop/install_desktop_shortcut.py
+```
+
+### Option B — standalone Windows `.exe` (best for other PCs)
+
+On a Windows machine with Python:
+
+1. Double-click **`desktop\build_windows_exe.bat`**
+2. It builds `dist\XlsxClean\XlsxClean.exe` and places an **XlsxClean** Desktop shortcut
+3. Copy the whole `dist\XlsxClean\` folder to other PCs if needed (keep the folder together)
+
+> The Windows `.exe` must be built **on Windows**. This Linux/cloud environment cannot
+> produce a native Windows executable.
+
+Troubleshooting launcher (shows a console): `desktop\XlsxClean.bat`
+
 ## Interfaces
 
 ### Web UI (NiceGUI)
-
-Modern browser form for Set → Ink color → Serial:
 
 ```bash
 xlsx-clean-web

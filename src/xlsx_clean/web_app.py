@@ -121,18 +121,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Enable NiceGUI auto-reload (dev only).",
     )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Do not open a browser window automatically.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> None:
+    # When frozen by PyInstaller, drop argv[0] quirks handled by argparse normally.
     args = parse_args(argv)
     _build_page()
     ui.run(
         host=args.host,
         port=args.port,
-        reload=args.reload,
+        reload=False if getattr(sys, "frozen", False) else args.reload,
         title="xlsx-clean",
-        show=True,
+        show=not args.no_browser,
+        native=False,
     )
 
 
