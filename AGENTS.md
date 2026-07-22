@@ -28,15 +28,22 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - NiceGUI web UI runs on Linux; `show=True` may try to open a browser (harmless if headless).
 
 ### Environment
-- Dependencies are installed into a `uv`-managed virtualenv at `.venv` by the startup
-  update script (`uv` itself is installed via `pip install --break-system-packages uv`
-  and lives in `~/.local/bin`, which is on PATH for interactive shells via `~/.bashrc`).
-- The install uses pinned versions from `requirements.lock`, excluding the `-e file:.`
-  editable line and `pywin32`; the package is then installed editable with `--no-deps`.
-  Also install `nicegui` (and its deps) for the web UI:
-  `uv pip install 'nicegui>=2.5.0' -p .venv/bin/python`.
+- Prefer **uv** for all installs. `uv` lives in `~/.local/bin` (on PATH via `~/.bashrc`).
+- Create/use the project venv and install editable from `pyproject.toml` (pulls `nicegui`,
+  `pandas`, `beaupy`; skips `pywin32` on Linux via the environment marker):
+
+  ```bash
+  uv venv .venv
+  uv pip install -e . -p .venv/bin/python
+  ```
+
+- The cloud startup script may also seed `.venv` from `requirements.lock` (excluding
+  `-e file:.` and `pywin32`) then `uv pip install -e . --no-deps`. Prefer the editable
+  install above when setting up fresh.
 - Run Python via the venv interpreter: `.venv/bin/python`.
 - Optional: `XLSX_CLEAN_ROOT` remaps `D:\OpenCloud\...` paths from `file_data.csv`.
+- Note: the `uv`-created `.venv` does not include `pip`; use `uv pip ...` for package
+  operations.
 
 ### Lint / test / build
 - There is **no lint config, no test suite, and no build step** in this repo (no ruff/flake8,
@@ -48,8 +55,8 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - Web UI: `.venv/bin/python -m xlsx_clean.web_app --port 8080` then open
   `http://127.0.0.1:8080`.
 - Desktop shortcut (Linux): `.venv/bin/python desktop/install_desktop_shortcut.py`
-- Windows shop-floor: use `desktop/Install-DesktopShortcut.bat` or build an exe with
-  `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows exe here).
+- Windows shop-floor: double-click `desktop/Setup.bat` (uv install + shortcut), or build
+  an exe with `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows
+  exe here).
 - Sanity-check imports:
   `.venv/bin/python -c "import pandas, beaupy, nicegui; from xlsx_clean import hello; from xlsx_clean.ooxml_backend import expand_a1_range; print(hello(), expand_a1_range('A1:B2'))"`.
-- Note: the `uv`-created `.venv` does not include `pip`; use `uv pip ...` for package operations.
