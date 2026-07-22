@@ -14,10 +14,10 @@ $shortcut = $wsh.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $target
 $shortcut.WorkingDirectory = $repoRoot
 $shortcut.WindowStyle = 7
-$shortcut.Description = "Open xlsx-clean web UI"
+$shortcut.Description = "Open xlsx-clean"
 $iconCandidate = Join-Path $PSScriptRoot "xlsx-clean.ico"
 if (Test-Path $iconCandidate) {
-    $shortcut.IconLocation = $iconCandidate
+    $shortcut.IconLocation = "$iconCandidate,0"
 }
 $shortcut.Save()
 Write-Host "Created $shortcutPath"
