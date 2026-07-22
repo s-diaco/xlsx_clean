@@ -22,12 +22,10 @@ _LINUX_NATIVE_HINT = (
     "Linux native window needs system GTK/WebKit packages "
     "(uv cannot install them), e.g.:\n"
     "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1\n"
-    "Isolated uv venvs do not see those packages unless you either:\n"
-    "  recreate:  rm -rf .venv && uv venv --system-site-packages && uv sync\n"
-    "  or rely on this app exposing /usr/lib/python3/dist-packages when present.\n"
+    "If packages are installed but the venv still cannot see them:\n"
+    "  rm -rf .venv && uv venv --system-site-packages && uv sync\n"
     "Falling back to the default browser. "
-    "Use --no-browser for server-only, or fix the packages/venv above for a "
-    "single app window."
+    "Use --no-browser for server-only."
 )
 
 
