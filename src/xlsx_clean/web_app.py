@@ -103,7 +103,7 @@ def _build_page() -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Start the xlsx-clean NiceGUI web interface."
+        description="Start the xlsx-clean NiceGUI interface."
     )
     parser.add_argument(
         "--host",
@@ -114,33 +114,52 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--port",
         type=int,
         default=8080,
-        help="Port (default: 8080).",
+        help="Port (default: 8080; native mode may pick a free port).",
     )
     parser.add_argument(
         "--reload",
         action="store_true",
-        help="Enable NiceGUI auto-reload (dev only).",
+        help="Enable NiceGUI auto-reload (dev only; ignored in native mode).",
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--browser",
+        action="store_true",
+        help="Open in the default web browser instead of a native app window.",
+    )
+    mode.add_argument(
         "--no-browser",
         action="store_true",
-        help="Do not open a browser window automatically.",
+        help="Run the server only; do not open a window or browser.",
     )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> None:
-    # When frozen by PyInstaller, drop argv[0] quirks handled by argparse normally.
     args = parse_args(argv)
     _build_page()
-    ui.run(
-        host=args.host,
-        port=args.port,
-        reload=False if getattr(sys, "frozen", False) else args.reload,
-        title="xlsx-clean",
-        show=not args.no_browser,
-        native=False,
-    )
+
+    frozen = getattr(sys, "frozen", False)
+    use_native = not args.browser and not args.no_browser
+    run_kwargs: dict = {
+        "host": args.host,
+        "port": args.port,
+        "reload": False if frozen or use_native else args.reload,
+        "title": "xlsx-clean",
+    }
+    if args.no_browser:
+        run_kwargs["show"] = False
+        run_kwargs["native"] = False
+    elif args.browser:
+        run_kwargs["show"] = True
+        run_kwargs["native"] = False
+    else:
+        # Single dedicated window (pywebview), not the default browser with tabs.
+        run_kwargs["native"] = True
+        run_kwargs["window_size"] = (900, 700)
+        run_kwargs["show"] = False
+
+    ui.run(**run_kwargs)
 
 
 if __name__ in {"__main__", "__mp_main__"}:

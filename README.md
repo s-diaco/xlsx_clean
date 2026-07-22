@@ -3,7 +3,8 @@
 Create a new QC datasheet from the latest matching workbook: clear configured cells,
 blank notes, write the batch serial, and save under a new `[SERIAL]` name.
 
-Everyday use is a **Desktop icon** that opens a browser form (Set → Ink → Serial → Create).
+Everyday use is a **Desktop icon** that opens a **single app window**
+(Set → Ink → Serial → Create) — not your full browser with all tabs.
 No terminal commands are required for operators.
 
 ## Quick start (Windows operators)
@@ -11,13 +12,18 @@ No terminal commands are required for operators.
 1. One-time setup (IT / first install): install [uv](https://docs.astral.sh/uv/getting-started/installation/), clone/copy this project, then double-click  
    **`desktop\Setup.bat`**
 2. Every day: double-click the **XlsxClean** icon on the Desktop  
-3. In the browser form: choose **Set**, **Ink color**, enter **Serial**, click **Create datasheet**
+3. In the app window: choose **Set**, **Ink color**, enter **Serial**, click **Create datasheet**
 
 `Setup.bat` creates `.venv` with uv, installs the package, and adds the Desktop shortcut.
-The shortcut runs `desktop\XlsxClean.vbs` (no console window) and opens
-`http://127.0.0.1:8080`.
+The shortcut runs `desktop\XlsxClean.vbs` and opens one dedicated window (via pywebview).
+Closing that window stops the app.
 
 If something fails, use **`desktop\XlsxClean.bat`** instead — it shows a console with errors.
+To force the old “open in default browser” behavior for debugging:
+
+```bat
+.venv\Scripts\python.exe -m xlsx_clean.web_app --browser
+```
 
 ## Standalone Windows exe (optional)
 
@@ -81,11 +87,14 @@ Optional: set `XLSX_CLEAN_ROOT` if workbooks are not under `D:\OpenCloud`
 
 These are optional; operators should use the Desktop icon.
 
-**Web UI**
+**App window (default: native single window)**
 
 ```bash
 .venv/bin/python -m xlsx_clean.web_app
 # Windows: .venv\Scripts\python.exe -m xlsx_clean.web_app
+
+# Optional: open in the default browser instead
+.venv/bin/python -m xlsx_clean.web_app --browser
 ```
 
 **CLI**
