@@ -48,11 +48,13 @@ echo Creating Desktop shortcut to the exe...
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$desk=[Environment]::GetFolderPath('Desktop');" ^
   "$lnk=Join-Path $desk 'XlsxClean.lnk';" ^
+  "$ico=Join-Path '%CD%' 'desktop\xlsx-clean.ico';" ^
   "$w=New-Object -ComObject WScript.Shell;" ^
   "$s=$w.CreateShortcut($lnk);" ^
   "$s.TargetPath='%EXE%';" ^
   "$s.WorkingDirectory='%~dp0..\dist\XlsxClean';" ^
   "$s.Description='Open xlsx-clean';" ^
+  "if (Test-Path $ico) { $s.IconLocation = $ico };" ^
   "$s.Save();" ^
   "Write-Host Created $lnk"
 
