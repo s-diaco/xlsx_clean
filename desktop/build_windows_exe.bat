@@ -1,5 +1,5 @@
 @echo off
-REM Build dist\XlsxClean\XlsxClean.exe on Windows with uv, then Desktop shortcut.
+REM Build dist\New QC Sheet\New QC Sheet.exe on Windows with uv, then Desktop shortcut.
 setlocal
 cd /d "%~dp0\.."
 
@@ -27,7 +27,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-set EXE=%CD%\dist\XlsxClean\XlsxClean.exe
+set EXE=%CD%\dist\New QC Sheet\New QC Sheet.exe
 if not exist "%EXE%" (
   echo Expected exe not found: %EXE%
   pause
@@ -37,18 +37,20 @@ if not exist "%EXE%" (
 echo Creating Desktop shortcut to the exe...
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$desk=[Environment]::GetFolderPath('Desktop');" ^
-  "$lnk=Join-Path $desk 'XlsxClean.lnk';" ^
+  "$lnk=Join-Path $desk 'New QC Sheet.lnk';" ^
+  "$legacy=Join-Path $desk 'XlsxClean.lnk';" ^
+  "if (Test-Path $legacy) { Remove-Item $legacy -Force };" ^
   "$ico=Join-Path '%CD%' 'desktop\xlsx-clean.ico';" ^
   "$w=New-Object -ComObject WScript.Shell;" ^
   "$s=$w.CreateShortcut($lnk);" ^
   "$s.TargetPath='%EXE%';" ^
-  "$s.WorkingDirectory='%~dp0..\dist\XlsxClean';" ^
-  "$s.Description='Open xlsx-clean';" ^
+  "$s.WorkingDirectory='%~dp0..\dist\New QC Sheet';" ^
+  "$s.Description='Open New QC Sheet';" ^
   "if (Test-Path $ico) { $s.IconLocation = $ico };" ^
   "$s.Save();" ^
   "Write-Host Created $lnk"
 
 echo.
-echo Done. Double-click the XlsxClean icon on your Desktop.
-echo Exe folder: dist\XlsxClean\
+echo Done. Double-click the New QC Sheet icon on your Desktop.
+echo Exe folder: dist\New QC Sheet\
 pause

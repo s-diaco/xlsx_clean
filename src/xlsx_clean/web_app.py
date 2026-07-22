@@ -16,6 +16,8 @@ from xlsx_clean.clean_cells import (
 )
 from xlsx_clean.paths import default_backend
 
+APP_DISPLAY_NAME = "New QC Sheet"
+
 _LINUX_NATIVE_HINT = (
     "Linux native window needs system GTK/WebKit packages "
     "(uv cannot install them), e.g.:\n"
@@ -62,11 +64,11 @@ def _build_page() -> None:
     initial_set = sets[0] if sets else None
     initial_inks = list_ink_colors(path_df, initial_set) if initial_set else []
 
-    ui.page_title("xlsx-clean")
+    ui.page_title(APP_DISPLAY_NAME)
     ui.colors(primary="#0f766e", secondary="#115e59", accent="#14b8a6")
 
     with ui.column().classes("w-full max-w-xl mx-auto p-6 gap-4"):
-        ui.label("xlsx-clean").classes("text-3xl font-bold text-teal-800")
+        ui.label(APP_DISPLAY_NAME).classes("text-3xl font-bold text-teal-800")
         ui.label(
             "Create a new QC datasheet from the latest matching workbook."
         ).classes("text-gray-600")
@@ -142,7 +144,7 @@ def _build_page() -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Start the xlsx-clean NiceGUI interface."
+        description=f"Start the {APP_DISPLAY_NAME} NiceGUI interface."
     )
     parser.add_argument(
         "--host",
@@ -191,7 +193,7 @@ def main(argv: list[str] | None = None) -> None:
         "host": args.host,
         "port": args.port,
         "reload": False if frozen or use_native else args.reload,
-        "title": "xlsx-clean",
+        "title": APP_DISPLAY_NAME,
     }
     if args.no_browser:
         run_kwargs["show"] = False

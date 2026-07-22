@@ -29,5 +29,5 @@ if errorlevel 1 (
 )
 
 echo.
-echo Setup complete. Double-click the XlsxClean icon on your Desktop.
+echo Setup complete. Double-click the New QC Sheet icon on your Desktop.
 pause

@@ -9,5 +9,5 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo Desktop shortcut created: XlsxClean
+echo Desktop shortcut created: New QC Sheet
 pause

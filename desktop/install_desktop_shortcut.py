@@ -1,4 +1,4 @@
-"""Install a Desktop shortcut that launches the xlsx-clean web UI."""
+"""Install a Desktop shortcut that launches New QC Sheet."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DESKTOP_DIR = Path(__file__).resolve().parent
+APP_DISPLAY_NAME = "New QC Sheet"
 
 
 def _user_desktop() -> Path:
@@ -34,7 +35,7 @@ def install_windows() -> Path:
         ],
         check=True,
     )
-    return _user_desktop() / "XlsxClean.lnk"
+    return _user_desktop() / f"{APP_DISPLAY_NAME}.lnk"
 
 
 def install_linux() -> Path:
@@ -43,17 +44,20 @@ def install_linux() -> Path:
     python = REPO_ROOT / ".venv" / "bin" / "python"
     if not python.is_file():
         python = Path(sys.executable)
-    out = desktop / "XlsxClean.desktop"
+    out = desktop / f"{APP_DISPLAY_NAME}.desktop"
+    legacy = desktop / "XlsxClean.desktop"
+    if legacy.is_file():
+        legacy.unlink()
     exec_line = (
-        f'{python} -m xlsx_clean.web_app --host 127.0.0.1 --port 8080'
+        f"{python} -m xlsx_clean.web_app --host 127.0.0.1 --port 8080"
     )
     icon_png = DESKTOP_DIR / "xlsx-clean.png"
     icon_line = str(icon_png) if icon_png.is_file() else "applications-office"
     content = f"""[Desktop Entry]
 Type=Application
 Version=1.0
-Name=XlsxClean
-Comment=Create a new QC datasheet (xlsx-clean web UI)
+Name={APP_DISPLAY_NAME}
+Comment=Create a new QC datasheet
 Exec={exec_line}
 Path={REPO_ROOT}
 Icon={icon_line}
