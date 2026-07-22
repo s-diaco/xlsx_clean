@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 
 from nicegui import ui
@@ -14,6 +15,44 @@ from xlsx_clean.clean_cells import (
     load_config,
 )
 from xlsx_clean.paths import default_backend
+
+_LINUX_NATIVE_HINT = (
+    "Linux native window needs system GTK/WebKit packages "
+    "(uv cannot install them), e.g.:\n"
+    "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1\n"
+    "Falling back to the default browser. "
+    "Use --no-browser for server-only, or install the packages above for a "
+    "single app window."
+)
+
+
+def _linux_has_display() -> bool:
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+
+def _linux_webview_libs_available() -> bool:
+    """True if GTK (gi) or Qt (qtpy) Python bindings are importable."""
+    try:
+        import gi  # noqa: F401
+
+        return True
+    except ImportError:
+        pass
+    try:
+        import qtpy  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
+def _native_mode_available() -> bool:
+    """Whether pywebview is likely able to open a native window."""
+    if sys.platform == "win32" or sys.platform == "darwin":
+        return True
+    if sys.platform.startswith("linux"):
+        return _linux_has_display() and _linux_webview_libs_available()
+    return _linux_webview_libs_available()
 
 
 def _build_page() -> None:
@@ -141,6 +180,13 @@ def main(argv: list[str] | None = None) -> None:
 
     frozen = getattr(sys, "frozen", False)
     use_native = not args.browser and not args.no_browser
+    if use_native and not _native_mode_available():
+        if os.environ.get("XLSX_CLEAN_NATIVE_FALLBACK") != "1":
+            print(_LINUX_NATIVE_HINT, file=sys.stderr)
+            os.environ["XLSX_CLEAN_NATIVE_FALLBACK"] = "1"
+        use_native = False
+        args.browser = True
+
     run_kwargs: dict = {
         "host": args.host,
         "port": args.port,
@@ -150,16 +196,32 @@ def main(argv: list[str] | None = None) -> None:
     if args.no_browser:
         run_kwargs["show"] = False
         run_kwargs["native"] = False
-    elif args.browser:
-        run_kwargs["show"] = True
-        run_kwargs["native"] = False
-    else:
+    elif use_native:
         # Single dedicated window (pywebview), not the default browser with tabs.
         run_kwargs["native"] = True
         run_kwargs["window_size"] = (900, 700)
         run_kwargs["show"] = False
+    else:
+        run_kwargs["show"] = True
+        run_kwargs["native"] = False
 
-    ui.run(**run_kwargs)
+    try:
+        ui.run(**run_kwargs)
+    except Exception as exc:
+        # Native mode can still fail at runtime (e.g. missing WebKit gir).
+        msg = str(exc).lower()
+        if run_kwargs.get("native") and (
+            "gtk" in msg or "qt" in msg or "webview" in msg or "gi" in msg
+        ):
+            print(_LINUX_NATIVE_HINT, file=sys.stderr)
+            print(f"(native start failed: {exc})", file=sys.stderr)
+            run_kwargs["native"] = False
+            run_kwargs.pop("window_size", None)
+            run_kwargs["show"] = True
+            run_kwargs["reload"] = False if frozen else args.reload
+            ui.run(**run_kwargs)
+        else:
+            raise
 
 
 if __name__ in {"__main__", "__mp_main__"}:

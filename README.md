@@ -75,6 +75,29 @@ uv sync
 
 That creates `.venv` and installs locked deps from `uv.lock`.
 
+### Linux single app window (native mode)
+
+Native mode uses **pywebview**, which on Linux needs **system** GTK/WebKit packages
+(`uv sync` cannot install these):
+
+```bash
+# Ubuntu / Debian (names may vary by release: webkit2-4.0 vs 4.1)
+sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1
+
+uv sync
+.venv/bin/python -m xlsx_clean.web_app
+```
+
+Without those packages, or on a headless machine (no display), the app falls back to
+opening the default browser, or you can force:
+
+```bash
+.venv/bin/python -m xlsx_clean.web_app --browser
+.venv/bin/python -m xlsx_clean.web_app --no-browser
+```
+
+**Windows** native mode uses Edge/WebView2 and does **not** need the apt packages above.
+
 Before building the standalone exe:
 
 ```bash
