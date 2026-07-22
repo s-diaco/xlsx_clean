@@ -11,26 +11,16 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist ".venv\Scripts\python.exe" (
-  echo Creating .venv with uv...
-  uv venv .venv
-  if errorlevel 1 (
-    echo uv venv failed.
-    pause
-    exit /b 1
-  )
-)
-
-echo Installing packaging deps with uv...
-uv pip install -e ".[desktop]" -p .venv\Scripts\python.exe
+echo Syncing project + desktop extras with uv...
+uv sync --extra desktop
 if errorlevel 1 (
-  echo uv pip install failed.
+  echo uv sync failed.
   pause
   exit /b 1
 )
 
 echo Building executable with PyInstaller...
-uv run --python .venv\Scripts\python.exe pyinstaller --noconfirm packaging\xlsx_clean.spec
+uv run pyinstaller --noconfirm packaging\xlsx_clean.spec
 if errorlevel 1 (
   echo PyInstaller build failed.
   pause

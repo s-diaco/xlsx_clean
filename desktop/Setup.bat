@@ -1,5 +1,5 @@
 @echo off
-REM One-time Windows setup with uv: create .venv, install package, Desktop shortcut.
+REM One-time Windows setup with uv: sync deps from uv.lock, Desktop shortcut.
 setlocal
 cd /d "%~dp0\.."
 
@@ -12,22 +12,10 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist ".venv\Scripts\python.exe" (
-  echo Creating .venv with uv...
-  uv venv .venv
-  if errorlevel 1 (
-    echo uv venv failed.
-    pause
-    exit /b 1
-  )
-) else (
-  echo Using existing .venv
-)
-
-echo Installing xlsx-clean into .venv...
-uv pip install -e . -p .venv\Scripts\python.exe
+echo Syncing project with uv (creates .venv if needed)...
+uv sync
 if errorlevel 1 (
-  echo uv pip install failed.
+  echo uv sync failed.
   pause
   exit /b 1
 )

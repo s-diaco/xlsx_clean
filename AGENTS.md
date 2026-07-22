@@ -9,7 +9,8 @@ configured directory, clearing/resetting specific cells. Interfaces:
 ## Backends
 
 - **`com` (Windows default):** Microsoft Excel COM via `pywin32`. Loads add-ins listed
-  in `strings.txt`, edits cells, `SaveAs`, leaves Excel visible/maximized.
+  in `strings.txt`, edits cells, `SaveAs`, leaves Excel visible/maximized and brought
+  to the front.
 - **`ooxml` (Linux/macOS default):** Surgical edit of the `.xlsx` zip (worksheet XML
   only). Preserves non-worksheet parts (styles, connections/Power Query definitions,
   drawings, etc.). Does not calculate formulas or refresh queries.
@@ -20,7 +21,7 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 
 ### Platform notes
 - `pywin32` has no Linux wheels and is declared as Windows-only
-  (`pywin32>=306; sys_platform == 'win32'`). It is intentionally **not** installed here.
+  (`pywin32>=312; sys_platform == 'win32'`). It is intentionally **not** installed here.
 - End-to-end COM automation needs Windows + desktop Excel and does not run on this VM.
 - On Linux, the **ooxml** backend can clear/set cells and write a new workbook when
   sample files and `XLSX_CLEAN_ROOT` point at a real tree. Without those data files,
@@ -29,22 +30,17 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
   `--no-browser` or `--browser` as needed; native mode needs a display.
 
 ### Environment
-- Prefer **uv** for all installs. `uv` lives in `~/.local/bin` (on PATH via `~/.bashrc`).
-- Create/use the project venv and install editable from `pyproject.toml` (pulls `nicegui`,
-  `pandas`, `beaupy`; skips `pywin32` on Linux via the environment marker):
+- Prefer **uv** for all installs (`uv` in `~/.local/bin`, on PATH via `~/.bashrc`).
+- Rye is **not** used (`requirements.lock` removed). Use `uv.lock` + `uv sync`.
 
   ```bash
-  uv venv .venv
-  uv pip install -e . -p .venv/bin/python
+  uv sync
   ```
 
-- The cloud startup script may also seed `.venv` from `requirements.lock` (excluding
-  `-e file:.` and `pywin32`) then `uv pip install -e . --no-deps`. Prefer the editable
-  install above when setting up fresh.
 - Run Python via the venv interpreter: `.venv/bin/python`.
 - Optional: `XLSX_CLEAN_ROOT` remaps `D:\OpenCloud\...` paths from `file_data.csv`.
-- Note: the `uv`-created `.venv` does not include `pip`; use `uv pip ...` for package
-  operations.
+- Note: the `uv`-created `.venv` does not include `pip`; use `uv pip ...` / `uv sync`
+  for package operations.
 
 ### Lint / test / build
 - There is **no lint config, no test suite, and no build step** in this repo (no ruff/flake8,
@@ -56,7 +52,7 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - Web UI: `.venv/bin/python -m xlsx_clean.web_app` (native window) or
   `--no-browser` / `--browser` on headless / for default browser.
 - Desktop shortcut (Linux): `.venv/bin/python desktop/install_desktop_shortcut.py`
-- Windows shop-floor: double-click `desktop/Setup.bat` (uv install + shortcut), or build
+- Windows shop-floor: double-click `desktop/Setup.bat` (uv sync + shortcut), or build
   an exe with `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows
   exe here).
 - Sanity-check imports:
