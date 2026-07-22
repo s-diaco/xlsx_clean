@@ -22,8 +22,11 @@ _LINUX_NATIVE_HINT = (
     "Linux native window needs system GTK/WebKit packages "
     "(uv cannot install them), e.g.:\n"
     "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1\n"
+    "Isolated uv venvs do not see those packages unless you either:\n"
+    "  recreate:  rm -rf .venv && uv venv --system-site-packages && uv sync\n"
+    "  or rely on this app exposing /usr/lib/python3/dist-packages when present.\n"
     "Falling back to the default browser. "
-    "Use --no-browser for server-only, or install the packages above for a "
+    "Use --no-browser for server-only, or fix the packages/venv above for a "
     "single app window."
 )
 
@@ -32,14 +35,56 @@ def _linux_has_display() -> bool:
     return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 
 
-def _linux_webview_libs_available() -> bool:
-    """True if GTK (gi) or Qt (qtpy) Python bindings are importable."""
-    try:
-        import gi  # noqa: F401
+def _linux_system_dist_packages() -> list[str]:
+    """Debian/Ubuntu (and similar) PyGObject install locations."""
+    major, minor = sys.version_info[:2]
+    return [
+        "/usr/lib/python3/dist-packages",
+        f"/usr/lib/python{major}.{minor}/dist-packages",
+        f"/usr/local/lib/python{major}.{minor}/dist-packages",
+    ]
 
-        return True
+
+def _ensure_linux_system_gi_path() -> None:
+    """Make system python3-gi visible inside an isolated uv/venv.
+
+    apt installs PyGObject into dist-packages; plain `uv sync` venvs do not
+    include system site-packages, so `import gi` fails and NiceGUI falls back
+    to the browser. Exposing dist-packages is enough when typelibs are installed.
+    """
+    if not sys.platform.startswith("linux"):
+        return
+    for path in _linux_system_dist_packages():
+        if os.path.isdir(path) and path not in sys.path:
+            sys.path.append(path)
+
+
+def _gi_gtk_webkit_available() -> bool:
+    """True if pywebview's GTK backend requirements can be satisfied."""
+    try:
+        import gi
     except ImportError:
-        pass
+        return False
+    try:
+        gi.require_version("Gtk", "3.0")
+        gi.require_version("Gdk", "3.0")
+    except (ValueError, AttributeError):
+        return False
+    try:
+        gi.require_version("WebKit2", "4.1")
+    except ValueError:
+        try:
+            gi.require_version("WebKit2", "4.0")
+        except ValueError:
+            return False
+    return True
+
+
+def _linux_webview_libs_available() -> bool:
+    """True if GTK (gi) or Qt (qtpy) Python bindings are usable for pywebview."""
+    _ensure_linux_system_gi_path()
+    if _gi_gtk_webkit_available():
+        return True
     try:
         import qtpy  # noqa: F401
 

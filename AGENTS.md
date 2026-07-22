@@ -28,14 +28,23 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
   interactive selection still works for config loading, but globbing finds no templates.
 - NiceGUI defaults to a native window (`pywebview`). On Linux that needs **system**
   GTK/WebKit packages (`python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-webkit2-4.1` via apt) —
-  not installable with `uv`. On this headless VM native mode is unavailable; the app
-  falls back to the browser, or use `--no-browser` / `--browser`.
+  not installable with `uv`. Isolated uv venvs do not see apt `python3-gi` unless
+  created with `uv venv --system-site-packages` (or the app appends
+  `/usr/lib/python3/dist-packages`). On this headless/cloud VM native mode is often
+  unavailable; the app falls back to the browser, or use `--no-browser` / `--browser`.
 
 ### Environment
 - Prefer **uv** for all installs (`uv` in `~/.local/bin`, on PATH via `~/.bashrc`).
 - Rye is **not** used (`requirements.lock` removed). Use `uv.lock` + `uv sync`.
 
   ```bash
+  uv sync
+  ```
+
+  On a Linux desktop where you want the native window, prefer:
+
+  ```bash
+  uv venv --system-site-packages
   uv sync
   ```
 
