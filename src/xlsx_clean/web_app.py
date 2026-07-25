@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from importlib.metadata import PackageNotFoundError, version as package_version
 
 from nicegui import ui
 
@@ -17,6 +18,21 @@ from xlsx_clean.clean_cells import (
 from xlsx_clean.paths import default_backend
 
 APP_DISPLAY_NAME = "New QC Sheet"
+_PACKAGE_NAME = "xlsx-clean"
+
+
+def _app_version() -> str:
+    """Installed package version from metadata (pyproject.toml)."""
+    try:
+        return package_version(_PACKAGE_NAME)
+    except PackageNotFoundError:
+        return "0.1.0"
+
+
+def _app_title(version: str | None = None) -> str:
+    ver = version if version is not None else _app_version()
+    return f"{APP_DISPLAY_NAME} · {ver}"
+
 
 # Last native-check diagnostic (Python version + import/typelib error).
 _NATIVE_DIAG: str | None = None
@@ -143,8 +159,9 @@ def _build_page() -> None:
     sets = list_sets(path_df)
     initial_set = sets[0] if sets else None
     initial_inks = list_ink_colors(path_df, initial_set) if initial_set else []
+    app_version = _app_version()
 
-    ui.page_title(APP_DISPLAY_NAME)
+    ui.page_title(_app_title(app_version))
     ui.colors(primary="#0f766e", secondary="#115e59", accent="#14b8a6")
 
     with ui.column().classes("w-full max-w-xl mx-auto p-6 gap-4"):
@@ -220,6 +237,9 @@ def _build_page() -> None:
         ui.button("Create datasheet", on_click=on_create).props("unelevated").classes(
             "w-full"
         )
+        ui.label(f"v{app_version}").classes(
+            "w-full text-right text-xs text-gray-400"
+        )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -273,7 +293,7 @@ def main(argv: list[str] | None = None) -> None:
         "host": args.host,
         "port": args.port,
         "reload": False if frozen or use_native else args.reload,
-        "title": APP_DISPLAY_NAME,
+        "title": _app_title(),
     }
     if args.no_browser:
         run_kwargs["show"] = False
