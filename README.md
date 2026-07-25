@@ -76,10 +76,11 @@ chmod +x desktop/setup_linux.sh
 ./desktop/setup_linux.sh
 ```
 
-That installs apt GTK/WebKit packages if needed, recreates `.venv` with the
-**OS** `/usr/bin/python3` (`--no-managed-python --system-site-packages` so apt
+That installs apt GTK/WebKit packages if needed, recreates `.venv` with
+**`/usr/bin/python3`** (`--no-managed-python --system-site-packages` so apt
 `python3-gi` / `_gi` loads), runs `uv sync`, and creates a Desktop shortcut.
-Do not use a uv-managed CPython for the Linux native window — `_gi` will fail.
+It ignores PATH `python3` when that points at a uv-managed build under
+`~/.local/share/uv/python/` (common with an activated `.venv`).
 
 **Manual / macOS** (deps only; on Linux this alone is not enough for a native window):
 
