@@ -30,10 +30,11 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
   GTK/WebKit packages (`python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-webkit2-4.1` via apt) —
   not installable with `uv`. Prefer `./desktop/setup_linux.sh`, which recreates
   `.venv` with **OS** `/usr/bin/python3` (`--no-managed-python --system-site-packages`).
-  A uv-managed CPython (e.g. 3.12.2 from `~/.local/share/uv/python`) cannot load
-  apt `_gi` even with system-site-packages. On this headless/cloud VM native mode
-  is often unavailable; the app falls back to the browser, or use `--no-browser`
-  / `--browser`.
+  A uv-managed CPython (e.g. from `~/.local/share/uv/python`) cannot load apt
+  `_gi` even with system-site-packages. `.python-version` is `3.12` (minor pin,
+  not `3.12.2`) so sync can use OS `/usr/bin/python3`. On this headless/cloud VM
+  native mode is often unavailable; the app falls back to the browser, or use
+  `--no-browser` / `--browser`.
 
 ### Environment
 - Prefer **uv** for all installs (`uv` in `~/.local/bin`, on PATH via `~/.bashrc`).
