@@ -29,12 +29,19 @@ def _linux_native_hint(detail: str | None = None) -> str:
         "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1",
         "Recommended one-shot setup:",
         "  ./desktop/setup_linux.sh",
-        "Or recreate the venv so apt python3-gi is visible:",
-        "  rm -rf .venv && uv venv --python python3 --system-site-packages "
-        "&& uv sync",
+        "Recreate the venv with the OS Python (not a uv-managed build):",
+        "  rm -rf .venv && uv venv --python /usr/bin/python3 "
+        "--no-managed-python --system-site-packages && uv sync",
     ]
     if detail:
         lines.append(f"Detail: {detail}")
+        detail_l = detail.lower()
+        if "_gi" in detail_l or "partially initialized" in detail_l:
+            lines.append(
+                "This usually means the venv Python does not match apt "
+                "python3-gi (uv picked a managed CPython). Re-run "
+                "./desktop/setup_linux.sh so .venv uses /usr/bin/python3."
+            )
     lines.append(
         "Falling back to the default browser. "
         "Use --no-browser for server-only."
