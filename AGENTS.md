@@ -29,10 +29,11 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - NiceGUI defaults to a native window (`pywebview`). On Linux that needs **system**
   GTK/WebKit packages (`python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-webkit2-4.1` via apt) —
   not installable with `uv`. Prefer `./desktop/setup_linux.sh`, which recreates
-  `.venv` with `uv venv --system-site-packages`. Isolated uv venvs otherwise miss
-  apt `python3-gi` unless the app can append `/usr/lib/python3/dist-packages`.
-  On this headless/cloud VM native mode is often unavailable; the app falls back
-  to the browser, or use `--no-browser` / `--browser`.
+  `.venv` with **OS** `/usr/bin/python3` (`--no-managed-python --system-site-packages`).
+  A uv-managed CPython (e.g. 3.12.2 from `~/.local/share/uv/python`) cannot load
+  apt `_gi` even with system-site-packages. On this headless/cloud VM native mode
+  is often unavailable; the app falls back to the browser, or use `--no-browser`
+  / `--browser`.
 
 ### Environment
 - Prefer **uv** for all installs (`uv` in `~/.local/bin`, on PATH via `~/.bashrc`).
@@ -42,10 +43,10 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
   # Linux desktop (native window + Desktop shortcut):
   ./desktop/setup_linux.sh
 
-  # Deps only (any OS); Linux native window needs --system-site-packages:
+  # Deps only (any OS). For Linux native window use OS python3, not managed:
   uv sync
   # or:
-  uv venv --python python3 --system-site-packages && uv sync
+  uv venv --python /usr/bin/python3 --no-managed-python --system-site-packages && uv sync
   ```
 
 - Run Python via the venv interpreter: `.venv/bin/python`.
@@ -62,7 +63,7 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - CLI: `.venv/bin/python -m xlsx_clean.clean_cells` (defaults to `ooxml` on Linux).
 - Web UI: `.venv/bin/python -m xlsx_clean.web_app` (native window) or
   `--no-browser` / `--browser` on headless / for default browser.
-- Linux setup: `./desktop/setup_linux.sh` (apt + system-site-packages venv + shortcut).
+- Linux setup: `./desktop/setup_linux.sh` (apt + OS Python venv + shortcut).
 - Desktop shortcut (Linux): `.venv/bin/python desktop/install_desktop_shortcut.py`
 - Windows shop-floor: double-click `desktop/Setup.bat` (uv sync + shortcut), or build
   an exe with `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows
