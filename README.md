@@ -69,7 +69,18 @@ https://docs.astral.sh/uv/getting-started/installation/
 
 **Windows (recommended):** double-click **`desktop\Setup.bat`**
 
-**Manual / Linux / macOS** (from the project root):
+**Linux (recommended):** from the project root:
+
+```bash
+chmod +x desktop/setup_linux.sh
+./desktop/setup_linux.sh
+```
+
+That installs apt GTK/WebKit packages if needed, recreates `.venv` with
+`--system-site-packages` (so `python3-gi` is visible), runs `uv sync`, and
+creates a Desktop shortcut.
+
+**Manual / macOS** (deps only; on Linux this alone is not enough for a native window):
 
 ```bash
 uv sync
@@ -79,19 +90,26 @@ That creates `.venv` and installs locked deps from `uv.lock`.
 
 ### Linux single app window (native mode)
 
-Native mode uses **pywebview**, which on Linux needs **system** GTK/WebKit packages
-(`uv sync` cannot install these):
+Prefer **`./desktop/setup_linux.sh`** (above). Native mode uses **pywebview**,
+which needs **system** GTK/WebKit packages (`uv sync` cannot install these).
+
+Manual equivalent:
 
 ```bash
 # Ubuntu / Debian (names may vary by release: webkit2-4.0 vs 4.1)
 sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1
 
+rm -rf .venv
+uv venv --python python3 --system-site-packages
 uv sync
+
 .venv/bin/python -m xlsx_clean.web_app
 ```
 
-Without those packages, or on a headless machine (no display), the app falls back to
-opening the default browser, or you can force:
+If you already have a normal isolated `.venv`, the app will still try to load
+system `python3-gi` from `/usr/lib/python3/dist-packages` when those apt packages
+are installed. Without GTK/WebKit (or on a headless machine with no display), it
+falls back to opening the default browser, or you can force:
 
 ```bash
 .venv/bin/python -m xlsx_clean.web_app --browser
@@ -109,7 +127,8 @@ uv sync --extra desktop
 Then create the Desktop shortcut (if you did not use `Setup.bat`):
 
 - **Windows:** double-click `desktop\Install-DesktopShortcut.bat`
-- **Linux:** `.venv/bin/python desktop/install_desktop_shortcut.py`
+- **Linux:** `./desktop/setup_linux.sh` (preferred), or
+  `.venv/bin/python desktop/install_desktop_shortcut.py`
 
 Optional: set `XLSX_CLEAN_ROOT` if workbooks are not under `D:\OpenCloud`
 (e.g. `set XLSX_CLEAN_ROOT=D:\OpenCloud` or `export XLSX_CLEAN_ROOT=/mnt/opencloud`).
@@ -150,6 +169,7 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 |------|---------|
 | `desktop/xlsx-clean.ico` | Modern Windows Desktop / exe icon |
 | `desktop/Setup.bat` | Windows one-time setup via uv + Desktop shortcut |
+| `desktop/setup_linux.sh` | Linux one-time setup (apt + system-site-packages venv + shortcut) |
 | `desktop/Install-DesktopShortcut.bat` | Create Desktop icon only (Windows) |
 | `desktop/XlsxClean.vbs` | Silent double-click launcher |
 | `desktop/XlsxClean.bat` | Launcher with visible console |
