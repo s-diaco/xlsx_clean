@@ -14,9 +14,13 @@ No terminal commands are required for operators.
 2. Every day: double-click the **XlsxClean** icon on the Desktop  
 3. In the app window: choose **Set**, **Ink color**, enter **Serial**, click **Create datasheet**
 
-`Setup.bat` creates `.venv` with uv, installs the package, and adds the Desktop shortcut.
+`Setup.bat` creates `.venv` with uv, installs the package, and adds the Desktop shortcut
+(using the modern icon in `desktop\xlsx-clean.ico`).
 The shortcut runs `desktop\XlsxClean.vbs` and opens one dedicated window (via pywebview).
 Closing that window stops the app.
+
+When you **Create** with the **com** backend, Excel is maximized and brought to the front
+after the new workbook is saved.
 
 If something fails, use **`desktop\XlsxClean.bat`** instead — it shows a console with errors.
 To force the old “open in default browser” behavior for debugging:
@@ -117,6 +121,7 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 
 | Path | Purpose |
 |------|---------|
+| `desktop/xlsx-clean.ico` | Modern Windows Desktop / exe icon |
 | `desktop/Setup.bat` | Windows one-time setup via uv + Desktop shortcut |
 | `desktop/Install-DesktopShortcut.bat` | Create Desktop icon only (Windows) |
 | `desktop/XlsxClean.vbs` | Silent double-click launcher |

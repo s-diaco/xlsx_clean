@@ -47,6 +47,8 @@ def install_linux() -> Path:
     exec_line = (
         f'{python} -m xlsx_clean.web_app --host 127.0.0.1 --port 8080'
     )
+    icon_png = DESKTOP_DIR / "xlsx-clean.png"
+    icon_line = str(icon_png) if icon_png.is_file() else "applications-office"
     content = f"""[Desktop Entry]
 Type=Application
 Version=1.0
@@ -54,7 +56,7 @@ Name=XlsxClean
 Comment=Create a new QC datasheet (xlsx-clean web UI)
 Exec={exec_line}
 Path={REPO_ROOT}
-Icon=applications-office
+Icon={icon_line}
 Terminal=false
 Categories=Office;
 StartupNotify=true

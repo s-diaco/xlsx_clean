@@ -5,6 +5,45 @@ from __future__ import annotations
 from pathlib import Path
 
 
+def _bring_excel_to_front(excel, workbook) -> None:
+    """Maximize and force Excel ahead of other windows (e.g. NiceGUI)."""
+    import win32com.client as win32
+    import win32con
+    import win32gui
+
+    excel.Visible = True
+    excel.WindowState = win32.constants.xlMaximized
+    try:
+        workbook.Activate()
+    except Exception:
+        pass
+    try:
+        hwnd = int(excel.Hwnd)
+        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+        win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)
+        # Allow SetForegroundWindow to succeed when another app has focus.
+        try:
+            import win32api
+            import win32process
+
+            fg = win32gui.GetForegroundWindow()
+            fg_tid, _ = win32process.GetWindowThreadProcessId(fg)
+            our_tid = win32api.GetCurrentThreadId()
+            if fg_tid != our_tid:
+                win32process.AttachThreadInput(our_tid, fg_tid, True)
+                try:
+                    win32gui.SetForegroundWindow(hwnd)
+                finally:
+                    win32process.AttachThreadInput(our_tid, fg_tid, False)
+            else:
+                win32gui.SetForegroundWindow(hwnd)
+        except Exception:
+            win32gui.SetForegroundWindow(hwnd)
+    except Exception:
+        # Focus stealing can fail under some Windows policies; create still succeeded.
+        pass
+
+
 def clean_workbook_com(
     source: Path | str,
     destination: Path | str,
@@ -60,5 +99,5 @@ def clean_workbook_com(
         worksheet.Range(a1).Value = batch_serial
 
     workbook.SaveAs(str(destination.resolve()))
-    if maximize:
-        excel.WindowState = win32.constants.xlMaximized
+    if maximize or visible:
+        _bring_excel_to_front(excel, workbook)
