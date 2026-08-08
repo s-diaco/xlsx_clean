@@ -47,6 +47,9 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - CLI: `.venv/bin/python -m xlsx_clean.clean_cells` (defaults to `ooxml` on Linux).
 - Web UI: `.venv/bin/python -m xlsx_clean.web_app --port 8080` then open
   `http://127.0.0.1:8080`.
+- Desktop shortcut (Linux): `.venv/bin/python desktop/install_desktop_shortcut.py`
+- Windows shop-floor: use `desktop/Install-DesktopShortcut.bat` or build an exe with
+  `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows exe here).
 - Sanity-check imports:
   `.venv/bin/python -c "import pandas, beaupy, nicegui; from xlsx_clean import hello; from xlsx_clean.ooxml_backend import expand_a1_range; print(hello(), expand_a1_range('A1:B2'))"`.
 - Note: the `uv`-created `.venv` does not include `pip`; use `uv pip ...` for package operations.

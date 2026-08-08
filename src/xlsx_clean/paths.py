@@ -6,7 +6,18 @@ import os
 import sys
 from pathlib import Path
 
-PACKAGE_DIR = Path(__file__).resolve().parent
+
+def _package_dir() -> Path:
+    """Directory containing package data (CSV/txt), including PyInstaller bundles."""
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        bundled = Path(sys._MEIPASS) / "xlsx_clean"
+        if bundled.is_dir():
+            return bundled
+        return Path(sys._MEIPASS)
+    return Path(__file__).resolve().parent
+
+
+PACKAGE_DIR = _package_dir()
 
 # Historical Windows root used in file_data.csv
 DEFAULT_OPENCLOUD_ROOT = Path(r"D:\OpenCloud")
