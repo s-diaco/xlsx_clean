@@ -1,0 +1,75 @@
+# Manually bump package version and open a PR to main.
+# Actions → Bump version → Run workflow → choose patch / minor / major.
+name: Bump version
+
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: Version part to bump
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bump-version
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Bump version
+        id: bump
+        run: |
+          set -euo pipefail
+          OLD=$(uvx --from bump-my-version bump-my-version show current_version)
+          uvx --from bump-my-version bump-my-version bump "${{ inputs.part }}" --no-commit --no-tag
+          NEW=$(uvx --from bump-my-version bump-my-version show current_version)
+          echo "old=${OLD}" >> "$GITHUB_OUTPUT"
+          echo "new=${NEW}" >> "$GITHUB_OUTPUT"
+          echo "Bumped ${OLD} → ${NEW} (${{ inputs.part }})"
+
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          OLD="${{ steps.bump.outputs.old }}"
+          NEW="${{ steps.bump.outputs.new }}"
+          BRANCH="chore/bump-version-${NEW}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git add pyproject.toml
+          git commit -m "Bump version: ${OLD} → ${NEW}"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Bump version to ${NEW}" \
+            --body "## Summary
+
+Automated \`${{ inputs.part }}\` bump: \`${OLD}\` → \`${NEW}\`.
+
+Source: \`[project].version\` in \`pyproject.toml\` (via bump-my-version)."
