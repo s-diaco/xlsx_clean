@@ -8,12 +8,13 @@ No terminal commands are required for operators.
 
 ## Quick start (Windows operators)
 
-1. One-time setup (IT / first install): install Python 3.12+, clone/copy this project, create a venv, install deps, then double-click  
-   **`desktop\Install-DesktopShortcut.bat`**
+1. One-time setup (IT / first install): install [uv](https://docs.astral.sh/uv/getting-started/installation/), clone/copy this project, then double-click  
+   **`desktop\Setup.bat`**
 2. Every day: double-click the **XlsxClean** icon on the Desktop  
 3. In the browser form: choose **Set**, **Ink color**, enter **Serial**, click **Create datasheet**
 
-The Desktop shortcut runs `desktop\XlsxClean.vbs` (no console window) and opens
+`Setup.bat` creates `.venv` with uv, installs the package, and adds the Desktop shortcut.
+The shortcut runs `desktop\XlsxClean.vbs` (no console window) and opens
 `http://127.0.0.1:8080`.
 
 If something fails, use **`desktop\XlsxClean.bat`** instead — it shows a console with errors.
@@ -22,9 +23,10 @@ If something fails, use **`desktop\XlsxClean.bat`** instead — it shows a conso
 
 To put a self-contained app on other PCs (build **on Windows**):
 
-1. Double-click **`desktop\build_windows_exe.bat`**
-2. It creates `dist\XlsxClean\XlsxClean.exe` and a Desktop shortcut
-3. Copy the whole **`dist\XlsxClean\`** folder when moving to another machine (keep files together)
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if needed
+2. Double-click **`desktop\build_windows_exe.bat`**
+3. It creates `dist\XlsxClean\XlsxClean.exe` and a Desktop shortcut
+4. Copy the whole **`dist\XlsxClean\`** folder when moving to another machine (keep files together)
 
 ## What the app does
 
@@ -50,22 +52,27 @@ you need add-ins and a live Excel session.
 
 ## First-time install (admins)
 
+Uses **uv** (not pip). Install uv once: https://docs.astral.sh/uv/getting-started/installation/
+
+**Windows (recommended):** double-click **`desktop\Setup.bat`**
+
+**Manual / Linux / macOS** (from the project root):
+
 ```bash
-# from the project root
-python -m venv .venv
-
-# Windows
-.venv\Scripts\pip install -e .
-
-# Linux / macOS
-.venv/bin/pip install -e .
-# or: uv pip install -e . -p .venv/bin/python
+uv venv .venv
+uv pip install -e . -p .venv/bin/python   # Windows: .venv\Scripts\python.exe
 ```
 
-Then create the Desktop shortcut:
+Before building the standalone exe, also install packaging extras:
+
+```bash
+uv pip install -e ".[desktop]" -p .venv/bin/python
+```
+
+Then create the Desktop shortcut (if you did not use `Setup.bat`):
 
 - **Windows:** double-click `desktop\Install-DesktopShortcut.bat`
-- **Linux:** `python desktop/install_desktop_shortcut.py`
+- **Linux:** `.venv/bin/python desktop/install_desktop_shortcut.py`
 
 Optional: set `XLSX_CLEAN_ROOT` if workbooks are not under `D:\OpenCloud`
 (e.g. `set XLSX_CLEAN_ROOT=D:\OpenCloud` or `export XLSX_CLEAN_ROOT=/mnt/opencloud`).
@@ -77,17 +84,14 @@ These are optional; operators should use the Desktop icon.
 **Web UI**
 
 ```bash
-xlsx-clean-web
-# or
-python -m xlsx_clean.web_app
+.venv/bin/python -m xlsx_clean.web_app
+# Windows: .venv\Scripts\python.exe -m xlsx_clean.web_app
 ```
 
 **CLI**
 
 ```bash
-xlsx-clean
-# or
-python -m xlsx_clean.clean_cells --backend ooxml
+.venv/bin/python -m xlsx_clean.clean_cells --backend ooxml
 ```
 
 Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
@@ -104,9 +108,10 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 
 | Path | Purpose |
 |------|---------|
-| `desktop/Install-DesktopShortcut.bat` | Create Desktop icon (Windows) |
+| `desktop/Setup.bat` | Windows one-time setup via uv + Desktop shortcut |
+| `desktop/Install-DesktopShortcut.bat` | Create Desktop icon only (Windows) |
 | `desktop/XlsxClean.vbs` | Silent double-click launcher |
 | `desktop/XlsxClean.bat` | Launcher with visible console |
-| `desktop/build_windows_exe.bat` | Build standalone `XlsxClean.exe` |
+| `desktop/build_windows_exe.bat` | Build standalone `XlsxClean.exe` with uv |
 | `desktop/install_desktop_shortcut.py` | Create Desktop shortcut (Linux) |
 | `packaging/xlsx_clean.spec` | PyInstaller spec |

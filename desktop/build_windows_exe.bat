@@ -1,18 +1,36 @@
 @echo off
-REM Build dist\XlsxClean\XlsxClean.exe on Windows, then copy a Desktop shortcut.
+REM Build dist\XlsxClean\XlsxClean.exe on Windows with uv, then Desktop shortcut.
 setlocal
 cd /d "%~dp0\.."
 
-echo Installing packaging deps...
-py -3 -m pip install -e ".[desktop]"
+where uv >nul 2>&1
 if errorlevel 1 (
-  echo pip install failed. Ensure Python 3.12+ is installed.
+  echo uv was not found on PATH.
+  echo Install uv from https://docs.astral.sh/uv/getting-started/installation/
+  pause
+  exit /b 1
+)
+
+if not exist ".venv\Scripts\python.exe" (
+  echo Creating .venv with uv...
+  uv venv .venv
+  if errorlevel 1 (
+    echo uv venv failed.
+    pause
+    exit /b 1
+  )
+)
+
+echo Installing packaging deps with uv...
+uv pip install -e ".[desktop]" -p .venv\Scripts\python.exe
+if errorlevel 1 (
+  echo uv pip install failed.
   pause
   exit /b 1
 )
 
 echo Building executable with PyInstaller...
-py -3 -m PyInstaller --noconfirm packaging\xlsx_clean.spec
+uv run --python .venv\Scripts\python.exe pyinstaller --noconfirm packaging\xlsx_clean.spec
 if errorlevel 1 (
   echo PyInstaller build failed.
   pause
