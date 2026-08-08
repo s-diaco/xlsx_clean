@@ -30,7 +30,7 @@ python-yakh==0.3.2
 pytz==2024.1
     # via pandas
 pywin32==306
-    # via xlsx-clean
+    # via xlsx-clean; Windows-only (sys_platform == 'win32')
 questo==0.2.3
     # via beaupy
 rich==13.7.1
