@@ -26,8 +26,10 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - On Linux, the **ooxml** backend can clear/set cells and write a new workbook when
   sample files and `XLSX_CLEAN_ROOT` point at a real tree. Without those data files,
   interactive selection still works for config loading, but globbing finds no templates.
-- NiceGUI defaults to a native window (`pywebview`). On this headless VM use
-  `--no-browser` or `--browser` as needed; native mode needs a display.
+- NiceGUI defaults to a native window (`pywebview`). On Linux that needs **system**
+  GTK/WebKit packages (`python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-webkit2-4.1` via apt) —
+  not installable with `uv`. On this headless VM native mode is unavailable; the app
+  falls back to the browser, or use `--no-browser` / `--browser`.
 
 ### Environment
 - Prefer **uv** for all installs (`uv` in `~/.local/bin`, on PATH via `~/.bashrc`).
