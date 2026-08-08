@@ -13,6 +13,7 @@ import pandas
 from beaupy import prompt, select
 from rich.console import Console
 
+from xlsx_clean.app_logging import get_logger
 from xlsx_clean.paths import (
     default_backend,
     get_opencloud_root,
@@ -89,18 +90,31 @@ def create_datasheet(
 
     Shared by the CLI and the NiceGUI web UI.
     """
+    log = get_logger()
+    ctx = f"set={selected_set!r} ink={selected_dir!r} serial={batch_serial!r}"
+
     if not selected_set:
-        return CreateResult(ok=False, message="Select a set.")
+        message = "Select a set."
+        log.error("Create failed: %s (%s)", message, ctx)
+        return CreateResult(ok=False, message=message)
     if not selected_dir:
-        return CreateResult(ok=False, message="Select an ink color.")
+        message = "Select an ink color."
+        log.error("Create failed: %s (%s)", message, ctx)
+        return CreateResult(ok=False, message=message)
     if not batch_serial or not str(batch_serial).strip():
-        return CreateResult(ok=False, message="Enter a serial.")
+        message = "Enter a serial."
+        log.error("Create failed: %s (%s)", message, ctx)
+        return CreateResult(ok=False, message=message)
 
     batch_serial = str(batch_serial).strip()
+    ctx = f"set={selected_set!r} ink={selected_dir!r} serial={batch_serial!r}"
     try:
         resolved_backend = resolve_backend(backend)
     except (ValueError, RuntimeError) as exc:
+        log.error("Create failed: %s (%s)", exc, ctx)
         return CreateResult(ok=False, message=str(exc))
+
+    ctx = f"{ctx} backend={resolved_backend}"
 
     if path_df is None or addin_paths is None:
         content, loaded_df = load_config()
@@ -114,10 +128,9 @@ def create_datasheet(
         & (path_df["dir"].str.endswith(selected_dir))
     ]
     if matches.empty:
-        return CreateResult(
-            ok=False,
-            message=f"No config row for set={selected_set!r} ink={selected_dir!r}.",
-        )
+        message = f"No config row for set={selected_set!r} ink={selected_dir!r}."
+        log.error("Create failed: %s (%s)", message, ctx)
+        return CreateResult(ok=False, message=message)
 
     row = matches.iloc[0]
     path_ = Path(row["dir"])
@@ -125,9 +138,11 @@ def create_datasheet(
     search_pattern = pattern.replace("[SERIAL]", "*")
     files = [str(x) for x in path_.glob(search_pattern) if x.is_file()]
     if not files:
+        message = f"No workbooks matching {search_pattern!r} in {path_}"
+        log.error("Create failed: %s (%s)", message, ctx)
         return CreateResult(
             ok=False,
-            message=f"No workbooks matching {search_pattern!r} in {path_}",
+            message=message,
             backend=resolved_backend,
         )
 
@@ -137,10 +152,18 @@ def create_datasheet(
     template = Path(ref_workbook_name)
 
     if new_workbook_name.is_file():
+        message = f"Destination already exists, skipped: {new_workbook_name}"
+        log.info(
+            "Create skipped: %s (template=%s destination=%s %s)",
+            message,
+            template,
+            new_workbook_name,
+            ctx,
+        )
         return CreateResult(
             ok=True,
             skipped=True,
-            message=f"Destination already exists, skipped: {new_workbook_name}",
+            message=message,
             template=template,
             destination=new_workbook_name,
             backend=resolved_backend,
@@ -180,17 +203,33 @@ def create_datasheet(
                 notes_value=NEW_VALUE,
             )
     except Exception as exc:  # noqa: BLE001 - surface to CLI/UI
+        message = f"Failed to create workbook: {exc}"
+        log.exception(
+            "Create failed: %s (template=%s destination=%s %s)",
+            message,
+            template,
+            new_workbook_name,
+            ctx,
+        )
         return CreateResult(
             ok=False,
-            message=f"Failed to create workbook: {exc}",
+            message=message,
             template=template,
             destination=new_workbook_name,
             backend=resolved_backend,
         )
 
+    message = f"Wrote {new_workbook_name}"
+    log.info(
+        "Create succeeded: %s (template=%s destination=%s %s)",
+        message,
+        template,
+        new_workbook_name,
+        ctx,
+    )
     return CreateResult(
         ok=True,
-        message=f"Wrote {new_workbook_name}",
+        message=message,
         template=template,
         destination=new_workbook_name,
         backend=resolved_backend,
