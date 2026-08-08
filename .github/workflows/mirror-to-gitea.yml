@@ -1,0 +1,42 @@
+# Mirror all branches and tags from GitHub → Gitea after every ref change.
+# Requires repo secret GITEA_TOKEN (Gitea PAT with write:repository on rhino/xlsx-clean).
+name: Mirror to Gitea
+
+on:
+  push:
+  delete:
+  create:
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-to-gitea
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Mirror repository to Gitea
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GITEA_TOKEN:-}" ]; then
+            echo "Missing secret GITEA_TOKEN (Gitea PAT with write:repository)." >&2
+            exit 1
+          fi
+
+          git clone --mirror \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            mirror.git
+          cd mirror.git
+
+          # Push only branches/tags. Never push GitHub refs/pull/* — Gitea
+          # rejects those with "hook declined" and fails the whole mirror.
+          git push --prune \
+            "https://rhino:${GITEA_TOKEN}@git.faryad.top/rhino/xlsx-clean.git" \
+            "+refs/heads/*:refs/heads/*" \
+            "+refs/tags/*:refs/tags/*"
