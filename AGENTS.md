@@ -4,7 +4,7 @@
 configured directory, clearing/resetting specific cells. Interfaces:
 
 - CLI: `src/xlsx_clean/clean_cells.py` (`beaupy`)
-- Web UI: `src/xlsx_clean/web_app.py` (NiceGUI at `http://127.0.0.1:8080`)
+- Web UI: `src/xlsx_clean/web_app.py` (NiceGUI; default **native** single window via pywebview)
 
 ## Backends
 
@@ -25,7 +25,8 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - On Linux, the **ooxml** backend can clear/set cells and write a new workbook when
   sample files and `XLSX_CLEAN_ROOT` point at a real tree. Without those data files,
   interactive selection still works for config loading, but globbing finds no templates.
-- NiceGUI web UI runs on Linux; `show=True` may try to open a browser (harmless if headless).
+- NiceGUI defaults to a native window (`pywebview`). On this headless VM use
+  `--no-browser` or `--browser` as needed; native mode needs a display.
 
 ### Environment
 - Prefer **uv** for all installs. `uv` lives in `~/.local/bin` (on PATH via `~/.bashrc`).
@@ -52,8 +53,8 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 
 ### Running / verifying
 - CLI: `.venv/bin/python -m xlsx_clean.clean_cells` (defaults to `ooxml` on Linux).
-- Web UI: `.venv/bin/python -m xlsx_clean.web_app --port 8080` then open
-  `http://127.0.0.1:8080`.
+- Web UI: `.venv/bin/python -m xlsx_clean.web_app` (native window) or
+  `--no-browser` / `--browser` on headless / for default browser.
 - Desktop shortcut (Linux): `.venv/bin/python desktop/install_desktop_shortcut.py`
 - Windows shop-floor: double-click `desktop/Setup.bat` (uv install + shortcut), or build
   an exe with `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows

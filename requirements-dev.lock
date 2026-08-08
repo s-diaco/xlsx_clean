@@ -22,6 +22,8 @@ pandas==2.2.2
     # via xlsx-clean
 nicegui==3.14.0
     # via xlsx-clean
+pywebview==6.2.1
+    # via xlsx-clean
 pygments==2.17.2
     # via rich
 python-dateutil==2.9.0.post0
