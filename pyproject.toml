@@ -1,6 +1,6 @@
 [project]
 name = "xlsx-clean"
-version = "0.1.0"
+version = "0.2.0"
 description = "Create a new QC datasheet from the latest matching workbook"
 authors = [
     { name = "Diaco Soltanpour", email = "dyaco8464@yahoo.com" }

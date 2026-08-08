@@ -26,7 +26,7 @@ def _app_version() -> str:
     try:
         return package_version(_PACKAGE_NAME)
     except PackageNotFoundError:
-        return "0.1.0"
+        return "0.2.0"
 
 
 def _app_title(version: str | None = None) -> str:
