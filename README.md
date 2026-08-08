@@ -76,9 +76,10 @@ chmod +x desktop/setup_linux.sh
 ./desktop/setup_linux.sh
 ```
 
-That installs apt GTK/WebKit packages if needed, recreates `.venv` with
-`--system-site-packages` (so `python3-gi` is visible), runs `uv sync`, and
-creates a Desktop shortcut.
+That installs apt GTK/WebKit packages if needed, recreates `.venv` with the
+**OS** `/usr/bin/python3` (`--no-managed-python --system-site-packages` so apt
+`python3-gi` / `_gi` loads), runs `uv sync`, and creates a Desktop shortcut.
+Do not use a uv-managed CPython for the Linux native window — `_gi` will fail.
 
 **Manual / macOS** (deps only; on Linux this alone is not enough for a native window):
 
@@ -100,7 +101,9 @@ Manual equivalent:
 sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1
 
 rm -rf .venv
-uv venv --python python3 --system-site-packages
+# Must be OS python3 — `uv venv --python python3` may pick a managed build
+# that cannot load apt _gi.
+uv venv --python /usr/bin/python3 --no-managed-python --system-site-packages
 uv sync
 
 .venv/bin/python -m xlsx_clean.web_app
@@ -169,7 +172,7 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 |------|---------|
 | `desktop/xlsx-clean.ico` | Modern Windows Desktop / exe icon |
 | `desktop/Setup.bat` | Windows one-time setup via uv + Desktop shortcut |
-| `desktop/setup_linux.sh` | Linux one-time setup (apt + system-site-packages venv + shortcut) |
+| `desktop/setup_linux.sh` | Linux one-time setup (apt + OS Python venv + shortcut) |
 | `desktop/Install-DesktopShortcut.bat` | Create Desktop icon only (Windows) |
 | `desktop/XlsxClean.vbs` | Silent double-click launcher |
 | `desktop/XlsxClean.bat` | Launcher with visible console |
