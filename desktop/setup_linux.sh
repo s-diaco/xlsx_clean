@@ -30,17 +30,39 @@ if ! command -v uv >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "python3 not found on PATH." >&2
+# Must use the OS interpreter that apt's python3-gi/_gi was built for.
+# Never use `command -v python3`: with an activated .venv or uv on PATH it often
+# resolves to ~/.local/share/uv/python/... which cannot import apt gi.
+resolve_os_python() {
+  local candidate resolved
+  for candidate in /usr/bin/python3 /usr/local/bin/python3; do
+    if [[ -x "$candidate" ]]; then
+      resolved="$(readlink -f "$candidate")"
+      # Reject uv-managed installs even if somehow symlinked here.
+      if [[ "$resolved" == *"/uv/python/"* ]] || [[ "$resolved" == *".local/share/uv/"* ]]; then
+        continue
+      fi
+      printf '%s\n' "$resolved"
+      return 0
+    fi
+  done
+  return 1
+}
+
+if ! SYSTEM_PYTHON="$(resolve_os_python)"; then
+  echo "OS Python not found at /usr/bin/python3." >&2
+  echo "Install python3 from apt, then re-run. Do not rely on uv-managed Python." >&2
   exit 1
 fi
 
-# Must use the OS interpreter that apt's python3-gi/_gi was built for.
-# Plain `uv venv --python python3` often picks a uv-managed CPython that cannot
-# load system _gi (partially initialized module / cannot import name '_gi').
-SYSTEM_PYTHON="$(readlink -f "$(command -v python3)")"
 SYSTEM_VERSION="$("$SYSTEM_PYTHON" -c 'import sys; print(sys.version.split()[0])')"
-echo "Using system Python: ${SYSTEM_PYTHON} (${SYSTEM_VERSION})"
+echo "Using OS Python: ${SYSTEM_PYTHON} (${SYSTEM_VERSION})"
+if PATH_PYTHON="$(command -v python3 2>/dev/null || true)"; then
+  PATH_PYTHON_RESOLVED="$(readlink -f "$PATH_PYTHON" 2>/dev/null || true)"
+  if [[ -n "$PATH_PYTHON_RESOLVED" && "$PATH_PYTHON_RESOLVED" != "$SYSTEM_PYTHON" ]]; then
+    echo "Note: PATH python3 is ${PATH_PYTHON_RESOLVED} (ignored; apt gi needs OS Python)."
+  fi
+fi
 
 echo "Preflight: system Python must import Gtk/WebKit..."
 if ! "$SYSTEM_PYTHON" - <<'PY'

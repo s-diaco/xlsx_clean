@@ -39,8 +39,9 @@ def _linux_native_hint(detail: str | None = None) -> str:
         if "_gi" in detail_l or "partially initialized" in detail_l:
             lines.append(
                 "This usually means the venv Python does not match apt "
-                "python3-gi (uv picked a managed CPython). Re-run "
-                "./desktop/setup_linux.sh so .venv uses /usr/bin/python3."
+                "python3-gi (uv-managed CPython on PATH, e.g. "
+                "~/.local/share/uv/python/...). Re-run ./desktop/setup_linux.sh "
+                "so .venv uses /usr/bin/python3 (not PATH python3)."
             )
     lines.append(
         "Falling back to the default browser. "
