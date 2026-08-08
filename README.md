@@ -1,5 +1,7 @@
 # xlsx-clean
 
+Operator-facing name: **New QC Sheet**.
+
 Create a new QC datasheet from the latest matching workbook: clear configured cells,
 blank notes, write the batch serial, and save under a new `[SERIAL]` name.
 
@@ -11,7 +13,7 @@ No terminal commands are required for operators.
 
 1. One-time setup (IT / first install): install [uv](https://docs.astral.sh/uv/getting-started/installation/), clone/copy this project, then double-click  
    **`desktop\Setup.bat`**
-2. Every day: double-click the **XlsxClean** icon on the Desktop  
+2. Every day: double-click the **New QC Sheet** icon on the Desktop  
 3. In the app window: choose **Set**, **Ink color**, enter **Serial**, click **Create datasheet**
 
 `Setup.bat` creates `.venv` with uv, installs the package, and adds the Desktop shortcut
@@ -35,8 +37,8 @@ To put a self-contained app on other PCs (build **on Windows**):
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if needed
 2. Double-click **`desktop\build_windows_exe.bat`**
-3. It creates `dist\XlsxClean\XlsxClean.exe` and a Desktop shortcut
-4. Copy the whole **`dist\XlsxClean\`** folder when moving to another machine (keep files together)
+3. It creates `dist\New QC Sheet\New QC Sheet.exe` and a Desktop shortcut
+4. Copy the whole **`dist\New QC Sheet\`** folder when moving to another machine (keep files together)
 
 ## What the app does
 
@@ -151,6 +153,6 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 | `desktop/Install-DesktopShortcut.bat` | Create Desktop icon only (Windows) |
 | `desktop/XlsxClean.vbs` | Silent double-click launcher |
 | `desktop/XlsxClean.bat` | Launcher with visible console |
-| `desktop/build_windows_exe.bat` | Build standalone `XlsxClean.exe` with uv |
+| `desktop/build_windows_exe.bat` | Build standalone `New QC Sheet.exe` with uv |
 | `desktop/install_desktop_shortcut.py` | Create Desktop shortcut (Linux) |
 | `packaging/xlsx_clean.spec` | PyInstaller spec |

@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec for a double-clickable XlsxClean executable.
+"""PyInstaller spec for a double-clickable New QC Sheet executable.
 
 Build on Windows (recommended for shop-floor PCs):
   desktop\\build_windows_exe.bat
@@ -60,7 +60,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="XlsxClean",
+    name="New QC Sheet",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -82,5 +82,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="XlsxClean",
+    name="New QC Sheet",
 )
