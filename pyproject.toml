@@ -7,6 +7,7 @@ authors = [
 ]
 dependencies = [
     "beaupy>=3.8.2",
+    "nicegui>=2.5.0",
     "pandas>=2.2.2",
     "pywin32>=306; sys_platform == 'win32'",
 ]
@@ -15,6 +16,7 @@ requires-python = ">= 3.12"
 
 [project.scripts]
 xlsx-clean = "xlsx_clean.clean_cells:main"
+xlsx-clean-web = "xlsx_clean.web_app:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,8 +1,10 @@
 # xlsx-clean
 
-`xlsx-clean` is a Python CLI (`src/xlsx_clean/clean_cells.py`) that generates a new
-Excel QC datasheet from the most recent workbook in a configured directory,
-clearing/resetting specific cells.
+`xlsx-clean` generates a new Excel QC datasheet from the most recent workbook in a
+configured directory, clearing/resetting specific cells. Interfaces:
+
+- CLI: `src/xlsx_clean/clean_cells.py` (`beaupy`)
+- Web UI: `src/xlsx_clean/web_app.py` (NiceGUI at `http://127.0.0.1:8080`)
 
 ## Backends
 
@@ -12,7 +14,7 @@ clearing/resetting specific cells.
   only). Preserves non-worksheet parts (styles, connections/Power Query definitions,
   drawings, etc.). Does not calculate formulas or refresh queries.
 
-Select with `--backend com|ooxml`.
+Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 
 ## Cursor Cloud specific instructions
 
@@ -23,6 +25,7 @@ Select with `--backend com|ooxml`.
 - On Linux, the **ooxml** backend can clear/set cells and write a new workbook when
   sample files and `XLSX_CLEAN_ROOT` point at a real tree. Without those data files,
   interactive selection still works for config loading, but globbing finds no templates.
+- NiceGUI web UI runs on Linux; `show=True` may try to open a browser (harmless if headless).
 
 ### Environment
 - Dependencies are installed into a `uv`-managed virtualenv at `.venv` by the startup
@@ -30,6 +33,8 @@ Select with `--backend com|ooxml`.
   and lives in `~/.local/bin`, which is on PATH for interactive shells via `~/.bashrc`).
 - The install uses pinned versions from `requirements.lock`, excluding the `-e file:.`
   editable line and `pywin32`; the package is then installed editable with `--no-deps`.
+  Also install `nicegui` (and its deps) for the web UI:
+  `uv pip install 'nicegui>=2.5.0' -p .venv/bin/python`.
 - Run Python via the venv interpreter: `.venv/bin/python`.
 - Optional: `XLSX_CLEAN_ROOT` remaps `D:\OpenCloud\...` paths from `file_data.csv`.
 
@@ -39,7 +44,9 @@ Select with `--backend com|ooxml`.
 - `pyproject.toml` uses `hatchling` as the build backend; there is nothing to "build" for dev.
 
 ### Running / verifying
-- Interactive tool: `.venv/bin/python -m xlsx_clean.clean_cells` (defaults to `ooxml` on Linux).
+- CLI: `.venv/bin/python -m xlsx_clean.clean_cells` (defaults to `ooxml` on Linux).
+- Web UI: `.venv/bin/python -m xlsx_clean.web_app --port 8080` then open
+  `http://127.0.0.1:8080`.
 - Sanity-check imports:
-  `.venv/bin/python -c "import pandas, beaupy; from xlsx_clean import hello; from xlsx_clean.ooxml_backend import expand_a1_range; print(hello(), expand_a1_range('A1:B2'))"`.
+  `.venv/bin/python -c "import pandas, beaupy, nicegui; from xlsx_clean import hello; from xlsx_clean.ooxml_backend import expand_a1_range; print(hello(), expand_a1_range('A1:B2'))"`.
 - Note: the `uv`-created `.venv` does not include `pip`; use `uv pip ...` for package operations.
