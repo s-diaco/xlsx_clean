@@ -18,42 +18,114 @@ from xlsx_clean.paths import default_backend
 
 APP_DISPLAY_NAME = "New QC Sheet"
 
-_LINUX_NATIVE_HINT = (
-    "Linux native window needs system GTK/WebKit packages "
-    "(uv cannot install them), e.g.:\n"
-    "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1\n"
-    "Falling back to the default browser. "
-    "Use --no-browser for server-only, or install the packages above for a "
-    "single app window."
-)
+# Last native-check diagnostic (Python version + import/typelib error).
+_NATIVE_DIAG: str | None = None
+
+
+def _linux_native_hint(detail: str | None = None) -> str:
+    lines = [
+        "Linux native window needs system GTK/WebKit packages "
+        "(uv cannot install them), e.g.:",
+        "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1",
+        "Recommended one-shot setup:",
+        "  ./desktop/setup_linux.sh",
+        "Or recreate the venv so apt python3-gi is visible:",
+        "  rm -rf .venv && uv venv --python python3 --system-site-packages "
+        "&& uv sync",
+    ]
+    if detail:
+        lines.append(f"Detail: {detail}")
+    lines.append(
+        "Falling back to the default browser. "
+        "Use --no-browser for server-only."
+    )
+    return "\n".join(lines)
 
 
 def _linux_has_display() -> bool:
     return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
 
 
-def _linux_webview_libs_available() -> bool:
-    """True if GTK (gi) or Qt (qtpy) Python bindings are importable."""
-    try:
-        import gi  # noqa: F401
+def _linux_system_dist_packages() -> list[str]:
+    """Debian/Ubuntu (and similar) PyGObject install locations."""
+    major, minor = sys.version_info[:2]
+    return [
+        "/usr/lib/python3/dist-packages",
+        f"/usr/lib/python{major}.{minor}/dist-packages",
+        f"/usr/local/lib/python{major}.{minor}/dist-packages",
+    ]
 
+
+def _ensure_linux_system_gi_path() -> None:
+    """Make system python3-gi visible inside an isolated uv/venv.
+
+    apt installs PyGObject into dist-packages; plain `uv sync` venvs do not
+    include system site-packages, so `import gi` fails and NiceGUI falls back
+    to the browser. Exposing dist-packages is enough when typelibs are installed.
+    """
+    if not sys.platform.startswith("linux"):
+        return
+    for path in _linux_system_dist_packages():
+        if os.path.isdir(path) and path not in sys.path:
+            sys.path.append(path)
+
+
+def _gi_gtk_webkit_probe() -> str | None:
+    """Return None if pywebview's GTK backend is usable, else an error detail."""
+    try:
+        import gi
+    except ImportError as exc:
+        return f"import gi failed ({exc})"
+    try:
+        gi.require_version("Gtk", "3.0")
+        gi.require_version("Gdk", "3.0")
+    except (ValueError, AttributeError) as exc:
+        return f"Gtk/Gdk typelib unavailable ({exc})"
+    try:
+        gi.require_version("WebKit2", "4.1")
+    except ValueError:
+        try:
+            gi.require_version("WebKit2", "4.0")
+        except ValueError as exc:
+            return f"WebKit2 typelib unavailable ({exc})"
+    return None
+
+
+def _linux_webview_libs_available() -> bool:
+    """True if GTK (gi) or Qt (qtpy) Python bindings are usable for pywebview."""
+    global _NATIVE_DIAG
+    _ensure_linux_system_gi_path()
+    gi_err = _gi_gtk_webkit_probe()
+    if gi_err is None:
+        _NATIVE_DIAG = None
         return True
-    except ImportError:
-        pass
     try:
         import qtpy  # noqa: F401
 
+        _NATIVE_DIAG = None
         return True
-    except ImportError:
+    except ImportError as qt_exc:
+        _NATIVE_DIAG = (
+            f"Python {sys.version.split()[0]}; {gi_err}; "
+            f"qtpy also unavailable ({qt_exc})"
+        )
         return False
 
 
 def _native_mode_available() -> bool:
     """Whether pywebview is likely able to open a native window."""
+    global _NATIVE_DIAG
     if sys.platform == "win32" or sys.platform == "darwin":
+        _NATIVE_DIAG = None
         return True
     if sys.platform.startswith("linux"):
-        return _linux_has_display() and _linux_webview_libs_available()
+        if not _linux_has_display():
+            _NATIVE_DIAG = (
+                f"Python {sys.version.split()[0]}; "
+                "no DISPLAY/WAYLAND_DISPLAY (headless?)"
+            )
+            return False
+        return _linux_webview_libs_available()
     return _linux_webview_libs_available()
 
 
@@ -184,7 +256,7 @@ def main(argv: list[str] | None = None) -> None:
     use_native = not args.browser and not args.no_browser
     if use_native and not _native_mode_available():
         if os.environ.get("XLSX_CLEAN_NATIVE_FALLBACK") != "1":
-            print(_LINUX_NATIVE_HINT, file=sys.stderr)
+            print(_linux_native_hint(_NATIVE_DIAG), file=sys.stderr)
             os.environ["XLSX_CLEAN_NATIVE_FALLBACK"] = "1"
         use_native = False
         args.browser = True
@@ -215,8 +287,12 @@ def main(argv: list[str] | None = None) -> None:
         if run_kwargs.get("native") and (
             "gtk" in msg or "qt" in msg or "webview" in msg or "gi" in msg
         ):
-            print(_LINUX_NATIVE_HINT, file=sys.stderr)
-            print(f"(native start failed: {exc})", file=sys.stderr)
+            print(
+                _linux_native_hint(
+                    f"Python {sys.version.split()[0]}; native start failed: {exc}"
+                ),
+                file=sys.stderr,
+            )
             run_kwargs["native"] = False
             run_kwargs.pop("window_size", None)
             run_kwargs["show"] = True
