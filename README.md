@@ -62,21 +62,23 @@ you need add-ins and a live Excel session.
 
 ## First-time install (admins)
 
-Uses **uv** (not pip). Install uv once: https://docs.astral.sh/uv/getting-started/installation/
+Uses **uv** only (no pip / no rye). Install uv once:
+https://docs.astral.sh/uv/getting-started/installation/
 
 **Windows (recommended):** double-click **`desktop\Setup.bat`**
 
 **Manual / Linux / macOS** (from the project root):
 
 ```bash
-uv venv .venv
-uv pip install -e . -p .venv/bin/python   # Windows: .venv\Scripts\python.exe
+uv sync
 ```
 
-Before building the standalone exe, also install packaging extras:
+That creates `.venv` and installs locked deps from `uv.lock`.
+
+Before building the standalone exe:
 
 ```bash
-uv pip install -e ".[desktop]" -p .venv/bin/python
+uv sync --extra desktop
 ```
 
 Then create the Desktop shortcut (if you did not use `Setup.bat`):
