@@ -8,14 +8,18 @@ Or manually:
   pyinstaller packaging/xlsx_clean.spec
 """
 
+import os
 from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
 
+# SPECPATH is set by PyInstaller to the folder containing this spec file
+ROOT_DIR = os.path.abspath(os.path.join(SPECPATH, ".."))
+
 datas = [
-    ("src/xlsx_clean/file_data.csv", "xlsx_clean"),
-    ("src/xlsx_clean/strings.txt", "xlsx_clean"),
-    ("src/xlsx_clean/fonts", "xlsx_clean/fonts"),
+    (os.path.join(ROOT_DIR, "src", "xlsx_clean", "file_data.csv"), "xlsx_clean"),
+    (os.path.join(ROOT_DIR, "src", "xlsx_clean", "strings.txt"), "xlsx_clean"),
+    (os.path.join(ROOT_DIR, "src", "xlsx_clean", "fonts"), "xlsx_clean/fonts"),
 ]
 binaries = []
 hiddenimports = [
@@ -34,8 +38,8 @@ binaries += tmp_ret[1]
 hiddenimports += tmp_ret[2]
 
 a = Analysis(
-    ["src/xlsx_clean/gui_app.py"],
-    pathex=["."],
+    [os.path.join(ROOT_DIR, "src", "xlsx_clean", "gui_app.py")],
+    pathex=[ROOT_DIR],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
@@ -67,7 +71,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="desktop/xlsx-clean.ico",
+    icon=os.path.join(ROOT_DIR, "desktop", "xlsx-clean.ico"),
 )
 
 coll = COLLECT(
