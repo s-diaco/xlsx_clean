@@ -15,29 +15,26 @@ block_cipher = None
 datas = [
     ("src/xlsx_clean/file_data.csv", "xlsx_clean"),
     ("src/xlsx_clean/strings.txt", "xlsx_clean"),
+    ("src/xlsx_clean/fonts", "xlsx_clean/fonts"),
 ]
 binaries = []
 hiddenimports = [
     "xlsx_clean",
-    "xlsx_clean.web_app",
+    "xlsx_clean.core",
+    "xlsx_clean.gui_app",
     "xlsx_clean.clean_cells",
     "xlsx_clean.ooxml_backend",
     "xlsx_clean.com_backend",
     "xlsx_clean.paths",
 ]
 
-tmp_ret = collect_all("nicegui")
-datas += tmp_ret[0]
-binaries += tmp_ret[1]
-hiddenimports += tmp_ret[2]
-
-tmp_ret = collect_all("webview")
+tmp_ret = collect_all("dearpygui")
 datas += tmp_ret[0]
 binaries += tmp_ret[1]
 hiddenimports += tmp_ret[2]
 
 a = Analysis(
-    ["src/xlsx_clean/web_app.py"],
+    ["src/xlsx_clean/gui_app.py"],
     pathex=["."],
     binaries=binaries,
     datas=datas,
@@ -54,7 +51,6 @@ a = Analysis(
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
-# onedir is more reliable than onefile for NiceGUI assets
 exe = EXE(
     pyz,
     a.scripts,
@@ -65,7 +61,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,  # no black console window
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
