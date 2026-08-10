@@ -6,30 +6,25 @@ Create a new QC datasheet from the latest matching workbook: clear configured ce
 blank notes, write the batch serial, and save under a new `[SERIAL]` name.
 
 Everyday use is a **Desktop icon** that opens a **single app window**
-(Set → Ink → Serial → Create) — not your full browser with all tabs.
+(Set -> Ink -> Serial -> Create).
 No terminal commands are required for operators.
 
 ## Quick start (Windows operators)
 
-1. One-time setup (IT / first install): install [uv](https://docs.astral.sh/uv/getting-started/installation/), clone/copy this project, then double-click  
+1. One-time setup (IT / first install): install [uv](https://docs.astral.sh/uv/getting-started/installation/), clone/copy this project, then double-click
    **`desktop\Setup.bat`**
-2. Every day: double-click the **New QC Sheet** icon on the Desktop  
+2. Every day: double-click the **New QC Sheet** icon on the Desktop
 3. In the app window: choose **Set**, **Ink color**, enter **Serial**, click **Create datasheet**
 
 `Setup.bat` creates `.venv` with uv, installs the package, and adds the Desktop shortcut
 (using the modern icon in `desktop\xlsx-clean.ico`).
-The shortcut runs `desktop\XlsxClean.vbs` and opens one dedicated window (via pywebview).
+The shortcut runs `desktop\XlsxClean.vbs` which launches the GUI window.
 Closing that window stops the app.
 
 When you **Create** with the **com** backend, Excel is maximized and brought to the front
 after the new workbook is saved.
 
-If something fails, use **`desktop\XlsxClean.bat`** instead — it shows a console with errors.
-To force the old “open in default browser” behavior for debugging:
-
-```bat
-.venv\Scripts\python.exe -m xlsx_clean.web_app --browser
-```
+If something fails, use **`desktop\XlsxClean.bat`** instead - it shows a console with errors.
 
 ## Standalone Windows exe (optional)
 
@@ -56,7 +51,7 @@ To put a self-contained app on other PCs (build **on Windows**):
 | Windows | `com` | Uses Microsoft Excel + add-ins from `strings.txt`; leaves Excel open |
 | Linux / macOS | `ooxml` | Surgical `.xlsx` edit; keeps formulas, formatting, and queries on disk |
 
-Choose the backend in the web UI dropdown, or with CLI `--backend com\|ooxml`.
+Choose the backend in the `config.toml` file, or override with CLI `--backend com|ooxml`.
 
 **Limits of `ooxml`:** does not refresh Power Query, calculate formulas, or load `.xlam`/`.xla`
 add-ins. Open the file in Excel afterward for refresh/calc. Prefer **`com` on Windows** when
@@ -76,51 +71,15 @@ chmod +x desktop/setup_linux.sh
 ./desktop/setup_linux.sh
 ```
 
-That installs apt GTK/WebKit packages if needed, recreates `.venv` with
-**`/usr/bin/python3`** (`--no-managed-python --system-site-packages` so apt
-`python3-gi` / `_gi` loads), runs `uv sync`, and creates a Desktop shortcut.
-It ignores PATH `python3` when that points at a uv-managed build under
-`~/.local/share/uv/python/` (common with an activated `.venv`).
+That runs `uv sync` and creates a Desktop shortcut.
 
-**Manual / macOS** (deps only; on Linux this alone is not enough for a native window):
+**Manual / macOS:**
 
 ```bash
 uv sync
 ```
 
 That creates `.venv` and installs locked deps from `uv.lock`.
-
-### Linux single app window (native mode)
-
-Prefer **`./desktop/setup_linux.sh`** (above). Native mode uses **pywebview**,
-which needs **system** GTK/WebKit packages (`uv sync` cannot install these).
-
-Manual equivalent:
-
-```bash
-# Ubuntu / Debian (names may vary by release: webkit2-4.0 vs 4.1)
-sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1
-
-rm -rf .venv
-# Must be OS python3 — `uv venv --python python3` may pick a managed build
-# that cannot load apt _gi.
-uv venv --python /usr/bin/python3 --no-managed-python --system-site-packages
-uv sync
-
-.venv/bin/python -m xlsx_clean.web_app
-```
-
-If you already have a normal isolated `.venv`, the app will still try to load
-system `python3-gi` from `/usr/lib/python3/dist-packages` when those apt packages
-are installed. Without GTK/WebKit (or on a headless machine with no display), it
-falls back to opening the default browser, or you can force:
-
-```bash
-.venv/bin/python -m xlsx_clean.web_app --browser
-.venv/bin/python -m xlsx_clean.web_app --no-browser
-```
-
-**Windows** native mode uses Edge/WebView2 and does **not** need the apt packages above.
 
 Before building the standalone exe:
 
@@ -134,21 +93,17 @@ Then create the Desktop shortcut (if you did not use `Setup.bat`):
 - **Linux:** `./desktop/setup_linux.sh` (preferred), or
   `.venv/bin/python desktop/install_desktop_shortcut.py`
 
-Optional: set `XLSX_CLEAN_ROOT` if workbooks are not under `D:\OpenCloud`
-(e.g. `set XLSX_CLEAN_ROOT=D:\OpenCloud` or `export XLSX_CLEAN_ROOT=/mnt/opencloud`).
+Optional: Edit `~/.xlsx-clean/config.toml` (created automatically on first run) if workbooks are not under the default `D:\\OpenCloud` paths.
 
 ## Developer interfaces
 
 These are optional; operators should use the Desktop icon.
 
-**App window (default: native single window)**
+**GUI (desktop window)**
 
 ```bash
-.venv/bin/python -m xlsx_clean.web_app
-# Windows: .venv\Scripts\python.exe -m xlsx_clean.web_app
-
-# Optional: open in the default browser instead
-.venv/bin/python -m xlsx_clean.web_app --browser
+.venv/bin/python -m xlsx_clean.gui_app
+# Windows: .venv\Scripts\python.exe -m xlsx_clean.gui_app
 ```
 
 **CLI**
@@ -163,9 +118,9 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 
 | File | Purpose |
 |------|---------|
-| `src/xlsx_clean/file_data.csv` | Product folders, filename patterns, cells to clear/set |
+| `config.toml` | Backend choice and root directory path for each set (auto-generated in `~/.xlsx-clean/` on first run) |
+| `src/xlsx_clean/file_data.csv` | Relative product folders, filename patterns, cells to clear/set |
 | `src/xlsx_clean/strings.txt` | UI prompts + Windows Excel add-in paths (`com` only) |
-| `XLSX_CLEAN_ROOT` (env) | Replaces the `D:\OpenCloud\...` root in CSV paths |
 
 ## Project layout (launchers)
 
@@ -173,7 +128,7 @@ Windows CLI helper: `src\xlsx_clean\new_xslx.bat`
 |------|---------|
 | `desktop/xlsx-clean.ico` | Modern Windows Desktop / exe icon |
 | `desktop/Setup.bat` | Windows one-time setup via uv + Desktop shortcut |
-| `desktop/setup_linux.sh` | Linux one-time setup (apt + OS Python venv + shortcut) |
+| `desktop/setup_linux.sh` | Linux one-time setup (uv sync + shortcut) |
 | `desktop/Install-DesktopShortcut.bat` | Create Desktop icon only (Windows) |
 | `desktop/XlsxClean.vbs` | Silent double-click launcher |
 | `desktop/XlsxClean.bat` | Launcher with visible console |

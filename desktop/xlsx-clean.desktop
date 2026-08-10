@@ -4,7 +4,7 @@ Version=1.0
 Name=New QC Sheet
 Comment=Create a new QC datasheet
 # Exec is filled by install_desktop_shortcut.py; placeholder for manual edits:
-Exec=bash -lc 'cd "$(dirname "%k")/.." && (.venv/bin/python -m xlsx_clean.web_app --host 127.0.0.1 --port 8080)'
+Exec=bash -lc 'cd "$(dirname "%k")/.." && .venv/bin/python -m xlsx_clean.gui_app'
 Path=
 Icon=applications-office
 Terminal=false

@@ -1,12 +1,10 @@
 @echo off
 REM Double-click launcher with visible console (useful for troubleshooting).
-REM Default: single native app window. To use the browser instead, add --browser
 setlocal
 cd /d "%~dp0\.."
-set PORT=8080
 
 if exist ".venv\Scripts\python.exe" (
-  ".venv\Scripts\python.exe" -m xlsx_clean.web_app --host 127.0.0.1 --port %PORT% %*
+  ".venv\Scripts\python.exe" -m xlsx_clean.gui_app %*
 ) else (
-  py -3 -m xlsx_clean.web_app --host 127.0.0.1 --port %PORT% %*
+  py -3 -m xlsx_clean.gui_app %*
 )

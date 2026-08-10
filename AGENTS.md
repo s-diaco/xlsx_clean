@@ -4,7 +4,7 @@
 configured directory, clearing/resetting specific cells. Interfaces:
 
 - CLI: `src/xlsx_clean/clean_cells.py` (`beaupy`)
-- Web UI: `src/xlsx_clean/web_app.py` (NiceGUI; default **native** single window via pywebview)
+- GUI: `src/xlsx_clean/gui_app.py` (Dear PyGui cross-platform desktop window)
 
 ## Backends
 
@@ -15,7 +15,7 @@ configured directory, clearing/resetting specific cells. Interfaces:
   only). Preserves non-worksheet parts (styles, connections/Power Query definitions,
   drawings, etc.). Does not calculate formulas or refresh queries.
 
-Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
+Select with `--backend com|ooxml` (CLI) or the Backend dropdown (GUI).
 
 ## Cursor Cloud specific instructions
 
@@ -26,29 +26,19 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 - On Linux, the **ooxml** backend can clear/set cells and write a new workbook when
   sample files and `XLSX_CLEAN_ROOT` point at a real tree. Without those data files,
   interactive selection still works for config loading, but globbing finds no templates.
-- NiceGUI defaults to a native window (`pywebview`). On Linux that needs **system**
-  GTK/WebKit packages (`python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-webkit2-4.1` via apt) —
-  not installable with `uv`. Prefer `./desktop/setup_linux.sh`, which recreates
-  `.venv` with **OS** `/usr/bin/python3` (`--no-managed-python --system-site-packages`).
-  A uv-managed CPython (e.g. from `~/.local/share/uv/python`) cannot load apt
-  `_gi` even with system-site-packages. `setup_linux.sh` always uses
-  `/usr/bin/python3`, not PATH `python3`. `.python-version` is `3.12` (minor pin)
-  so sync can use the OS interpreter. On this headless/cloud VM native mode is
-  often unavailable; the app falls back to the browser, or use `--no-browser`
-  / `--browser`.
+- The Dear PyGui GUI runs cross-platform with no system dependencies beyond Python.
+  On headless VMs without a display server the GUI cannot open a window.
 
 ### Environment
 - Prefer **uv** for all installs (`uv` in `~/.local/bin`, on PATH via `~/.bashrc`).
 - Rye is **not** used (`requirements.lock` removed). Use `uv.lock` + `uv sync`.
 
   ```bash
-  # Linux desktop (native window + Desktop shortcut):
+  # Linux desktop (deps + Desktop shortcut):
   ./desktop/setup_linux.sh
 
-  # Deps only (any OS). For Linux native window use OS python3, not managed:
+  # Deps only (any OS):
   uv sync
-  # or:
-  uv venv --python /usr/bin/python3 --no-managed-python --system-site-packages && uv sync
   ```
 
 - Run Python via the venv interpreter: `.venv/bin/python`.
@@ -63,12 +53,11 @@ Select with `--backend com|ooxml` (CLI) or the Backend dropdown (web UI).
 
 ### Running / verifying
 - CLI: `.venv/bin/python -m xlsx_clean.clean_cells` (defaults to `ooxml` on Linux).
-- Web UI: `.venv/bin/python -m xlsx_clean.web_app` (native window) or
-  `--no-browser` / `--browser` on headless / for default browser.
-- Linux setup: `./desktop/setup_linux.sh` (apt + OS Python venv + shortcut).
+- GUI: `.venv/bin/python -m xlsx_clean.gui_app`.
+- Linux setup: `./desktop/setup_linux.sh` (uv sync + shortcut).
 - Desktop shortcut (Linux): `.venv/bin/python desktop/install_desktop_shortcut.py`
 - Windows shop-floor: double-click `desktop/Setup.bat` (uv sync + shortcut), or build
   an exe with `desktop/build_windows_exe.bat` **on a Windows PC** (cannot build Windows
   exe here).
 - Sanity-check imports:
-  `.venv/bin/python -c "import pandas, beaupy, nicegui; from xlsx_clean import hello; from xlsx_clean.ooxml_backend import expand_a1_range; print(hello(), expand_a1_range('A1:B2'))"`.
+  `.venv/bin/python -c "import dearpygui, beaupy; from xlsx_clean import hello; from xlsx_clean.core import load_config, list_sets; from xlsx_clean.ooxml_backend import expand_a1_range; print(hello(), expand_a1_range('A1:B2'))"`.
