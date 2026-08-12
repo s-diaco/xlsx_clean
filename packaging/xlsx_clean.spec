@@ -9,6 +9,7 @@ Or manually:
 """
 
 import os
+import sys
 from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
@@ -20,6 +21,7 @@ datas = [
     (os.path.join(ROOT_DIR, "src", "xlsx_clean", "file_data.csv"), "xlsx_clean"),
     (os.path.join(ROOT_DIR, "src", "xlsx_clean", "strings.txt"), "xlsx_clean"),
     (os.path.join(ROOT_DIR, "src", "xlsx_clean", "fonts"), "xlsx_clean/fonts"),
+    (os.path.join(ROOT_DIR, "src", "xlsx_clean", "ui"), "xlsx_clean/ui"),
 ]
 binaries = []
 hiddenimports = [
@@ -32,10 +34,17 @@ hiddenimports = [
     "xlsx_clean.paths",
 ]
 
-tmp_ret = collect_all("dearpygui")
-datas += tmp_ret[0]
-binaries += tmp_ret[1]
-hiddenimports += tmp_ret[2]
+webview_ret = collect_all("webview")
+datas += webview_ret[0]
+binaries += webview_ret[1]
+hiddenimports += webview_ret[2]
+
+if sys.platform == "win32":
+    clr_ret = collect_all("clr_loader")
+    datas += clr_ret[0]
+    binaries += clr_ret[1]
+    hiddenimports += clr_ret[2]
+    hiddenimports += ["clr", "clr_loader", "pythonnet"]
 
 a = Analysis(
     [os.path.join(ROOT_DIR, "src", "xlsx_clean", "gui_app.py")],

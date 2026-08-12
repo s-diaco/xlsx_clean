@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New QC Sheet</title>
+  <style>
+    @font-face {
+      font-family: "Inter";
+      src: url("../fonts/Inter-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Inter";
+      src: url("../fonts/Inter-Bold.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --primary: #0f766e;
+      --secondary: #115e59;
+      --accent: #14b8a6;
+      --slate-50: #f8fafc;
+      --slate-300: #cbd5e1;
+      --slate-500: #64748b;
+      --slate-700: #334155;
+      --status-ready: #f8fafc;
+      --status-success: #f0fdfa;
+      --status-skipped: #fffbeb;
+      --status-error: #fef2f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--slate-50);
+      color: var(--slate-700);
+      font-family: "Inter", sans-serif;
+      font-size: 15px;
+    }
+
+    .page {
+      display: flex;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .panel {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      width: min(100%, 36rem);
+      margin: auto;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--secondary);
+      font-size: 1.875rem;
+      font-weight: 700;
+      line-height: 2.25rem;
+    }
+
+    .subtitle {
+      margin: 8px 0 24px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .fields { display: grid; gap: 18px; }
+
+    .field {
+      position: relative;
+      display: block;
+      padding-top: 8px;
+    }
+
+    .field-label {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 11px;
+      padding: 0 4px;
+      background: var(--slate-50);
+      color: var(--primary);
+      font-size: 0.75rem;
+      line-height: 1rem;
+      pointer-events: none;
+    }
+
+    select, input {
+      width: 100%;
+      min-height: 54px;
+      padding: 16px 12px 6px;
+      border: 1px solid var(--slate-300);
+      border-radius: 4px;
+      outline: none;
+      background: #fff;
+      color: #0f172a;
+      font: inherit;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .combobox-input {
+      padding-right: 36px;
+      cursor: text;
+    }
+
+    .combobox { position: relative; }
+
+    .combobox > select {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+      background: transparent;
+    }
+
+    .combobox-caret {
+      position: absolute;
+      top: 0;
+      right: 12px;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      color: var(--slate-500);
+      pointer-events: none;
+      font-size: 0.75rem;
+    }
+
+    .combobox-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      z-index: 5;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px 0;
+      background: #fff;
+      border: 1px solid var(--slate-300);
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgb(15 23 42 / 12%);
+    }
+
+    .combobox-panel[hidden] { display: none; }
+
+    .combobox-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--slate-700);
+      line-height: 1.25;
+    }
+
+    .combobox-option[aria-selected="true"],
+    .combobox-option:hover {
+      background: var(--status-success);
+      color: var(--secondary);
+    }
+
+    .combobox-option[hidden] { display: none; }
+
+    .combobox-empty {
+      padding: 8px 12px;
+      color: var(--slate-500);
+      font-style: italic;
+    }
+
+    select:focus, input:focus,
+    .combobox-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgb(20 184 166 / 25%);
+    }
+
+    select:disabled, input:disabled,
+    .combobox-input:disabled {
+      cursor: not-allowed;
+      background: #f1f5f9;
+      color: var(--slate-500);
+    }
+
+    .divider {
+      height: 1px;
+      margin: 24px 0;
+      background: var(--slate-300);
+    }
+
+    button {
+      width: 100%;
+      min-height: 42px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--secondary);
+      box-shadow: 0 2px 5px rgb(15 118 110 / 25%);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    button:disabled { cursor: not-allowed; opacity: 0.65; }
+
+    .status {
+      min-height: 48px;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 4px;
+      color: var(--slate-700);
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .status-ready { background: var(--status-ready); }
+    .status-success { background: var(--status-success); color: #115e59; }
+    .status-skipped { background: var(--status-skipped); color: #92400e; }
+    .status-error { background: var(--status-error); color: #b91c1c; }
+
+    .version {
+      margin: auto 0 0;
+      padding-top: 24px;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      text-align: right;
+    }
+
+    @media (max-width: 480px) {
+      .page { padding: 18px; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="panel" aria-labelledby="heading">
+      <h1 id="heading">New QC Sheet</h1>
+      <p class="subtitle">Create a new QC datasheet from the latest matching workbook.</p>
+
+      <div class="fields">
+        <label class="field combobox" for="set-dropdown-input">
+          <span id="set-label" class="field-label">Select Set</span>
+          <input
+            id="set-dropdown-input"
+            class="combobox-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="set-dropdown-panel"
+            aria-autocomplete="list"
+            aria-labelledby="set-label"
+            placeholder=" ">
+          <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
+          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+          <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
+        </label>
+        <label class="field combobox" for="ink-dropdown-input">
+          <span id="ink-label" class="field-label">Select Ink Color</span>
+          <input
+            id="ink-dropdown-input"
+            class="combobox-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="ink-dropdown-panel"
+            aria-autocomplete="list"
+            aria-labelledby="ink-label"
+            placeholder=" ">
+          <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
+          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+          <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
+        </label>
+        <label class="field" for="serial-input">
+          <span id="serial-label" class="field-label">Serial:</span>
+          <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
+        </label>
+      </div>
+
+      <div class="divider"></div>
+      <button id="create-button" type="button">Create datasheet</button>
+      <div id="status" class="status status-ready" role="status">Loading configuration...</div>
+      <p id="version" class="version"></p>
+    </section>
+  </main>
+
+  <script>
+    const setDropdown = document.getElementById("set-dropdown");
+    const inkDropdown = document.getElementById("ink-dropdown");
+    const setInput = document.getElementById("set-dropdown-input");
+    const inkInput = document.getElementById("ink-dropdown-input");
+    const setPanel = document.getElementById("set-dropdown-panel");
+    const inkPanel = document.getElementById("ink-dropdown-panel");
+    const serialInput = document.getElementById("serial-input");
+    const createBtn = document.getElementById("create-button");
+    const status = document.getElementById("status");
+
+    // Builds a searchable combobox. The underlying <select> stays as the
+    // semantic source of truth; the visible widget is a text <input> plus a
+    // listbox panel that filters options as the user types.
+    function createCombobox(selectEl, inputEl, panelEl) {
+      let openState = false;
+      let inputDirty = false;
+
+      const visibleOptions = () =>
+        Array.from(panelEl.querySelectorAll(".combobox-option")).filter(
+          (node) => !node.hidden
+        );
+
+      const open = () => {
+        if (openState || inputEl.disabled) return;
+        openState = true;
+        panelEl.hidden = false;
+        inputEl.setAttribute("aria-expanded", "true");
+        filter();
+      };
+
+      const close = () => {
+        if (!openState) return;
+        openState = false;
+        panelEl.hidden = true;
+        inputEl.setAttribute("aria-expanded", "false");
+        inputEl.removeAttribute("aria-activedescendant");
+        for (const node of panelEl.querySelectorAll(".combobox-option")) {
+          node.setAttribute("aria-selected", "false");
+        }
+      };
+
+      const setActive = (idx) => {
+        const options = visibleOptions();
+        for (const node of panelEl.querySelectorAll(".combobox-option")) {
+          node.setAttribute("aria-selected", "false");
+        }
+        if (idx < 0 || idx >= options.length) {
+          inputEl.removeAttribute("aria-activedescendant");
+          return;
+        }
+        const node = options[idx];
+        node.setAttribute("aria-selected", "true");
+        node.scrollIntoView({ block: "nearest" });
+        inputEl.setAttribute("aria-activedescendant", node.id);
+      };
+
+      const filter = () => {
+        const needle = inputDirty ? inputEl.value.trim().toLowerCase() : "";
+        let firstVisible = -1;
+        let count = 0;
+        for (const node of panelEl.querySelectorAll(".combobox-option")) {
+          const value = (node.dataset.value || "").toLowerCase();
+          const match = !needle || value.includes(needle);
+          node.hidden = !match;
+          if (match) {
+            if (firstVisible === -1) firstVisible = count;
+            count += 1;
+          }
+        }
+        const empty = panelEl.querySelector(".combobox-empty");
+        if (empty) empty.hidden = count > 0;
+        setActive(firstVisible === -1 ? -1 : 0);
+      };
+
+      const selectValue = (value) => {
+        if (selectEl.value !== value) {
+          selectEl.value = value;
+          selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        inputEl.value = value;
+        inputDirty = false;
+        close();
+        inputEl.focus();
+      };
+
+      const syncDisabled = () => {
+        inputEl.disabled = selectEl.disabled;
+        if (selectEl.disabled) close();
+      };
+
+      const rebuild = () => {
+        panelEl.replaceChildren();
+        const values = Array.from(selectEl.options).map((o) => o.value);
+        for (const value of values) {
+          const node = document.createElement("div");
+          node.className = "combobox-option";
+          node.id = `${selectEl.id}-opt-${CSS.escape(value)}`;
+          node.setAttribute("role", "option");
+          node.setAttribute("aria-selected", "false");
+          node.dataset.value = value;
+          node.textContent = value;
+          node.addEventListener("mousedown", (event) => {
+            // mousedown (not click) so we beat the input's blur handler.
+            event.preventDefault();
+            selectValue(value);
+          });
+          panelEl.append(node);
+        }
+        const empty = document.createElement("div");
+        empty.className = "combobox-empty";
+        empty.textContent = "No matches";
+        empty.hidden = true;
+        panelEl.append(empty);
+        if (selectEl.value && !inputEl.value) {
+          inputEl.value = selectEl.value;
+        }
+        inputDirty = false;
+        syncDisabled();
+      };
+
+      inputEl.addEventListener("focus", open);
+      inputEl.addEventListener("input", () => {
+        inputDirty = true;
+        if (!openState) open();
+        filter();
+      });
+      inputEl.addEventListener("blur", () => {
+        // Defer close so a mousedown on a panel option can fire first.
+        setTimeout(() => {
+          if (inputEl.value !== selectEl.value) {
+            inputEl.value = selectEl.value || "";
+            inputDirty = false;
+          }
+          close();
+        }, 0);
+      });
+      inputEl.addEventListener("keydown", (event) => {
+        const options = visibleOptions();
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          if (!openState) open();
+          const idx = options.findIndex(
+            (n) => n.getAttribute("aria-selected") === "true"
+          );
+          setActive(Math.min(idx + 1, options.length - 1));
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          if (!openState) open();
+          const idx = options.findIndex(
+            (n) => n.getAttribute("aria-selected") === "true"
+          );
+          setActive(Math.max(idx - 1, 0));
+        } else if (event.key === "Home") {
+          if (openState) {
+            event.preventDefault();
+            setActive(0);
+          }
+        } else if (event.key === "End") {
+          if (openState) {
+            event.preventDefault();
+            setActive(options.length - 1);
+          }
+        } else if (event.key === "Enter") {
+          if (openState) {
+            event.preventDefault();
+            const node = panelEl.querySelector(
+              '.combobox-option[aria-selected="true"]'
+            );
+            if (node) selectValue(node.dataset.value);
+          }
+        } else if (event.key === "Escape") {
+          if (openState) {
+            event.preventDefault();
+            close();
+          }
+        }
+      });
+
+      // Click outside closes the panel.
+      document.addEventListener("mousedown", (event) => {
+        if (!openState) return;
+        if (!inputEl.parentElement.contains(event.target)) close();
+      });
+
+      return { rebuild, syncDisabled };
+    }
+
+    const setCombobox = createCombobox(setDropdown, setInput, setPanel);
+    const inkCombobox = createCombobox(inkDropdown, inkInput, inkPanel);
+
+    function populateDropdown(dropdown, combobox, values) {
+      dropdown.replaceChildren();
+      for (const value of values) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        dropdown.append(option);
+      }
+      dropdown.disabled = values.length === 0;
+      combobox.rebuild();
+    }
+
+    function populateDropdowns(sets, inks) {
+      populateDropdown(setDropdown, setCombobox, sets);
+      populateDropdown(inkDropdown, inkCombobox, inks);
+    }
+
+    function populateInkDropdown(inks) {
+      populateDropdown(inkDropdown, inkCombobox, inks);
+    }
+
+    function setLabels(labels) {
+      document.getElementById("set-label").textContent = labels.set;
+      document.getElementById("ink-label").textContent = labels.ink;
+      document.getElementById("serial-label").textContent = labels.serial;
+    }
+
+    function setVersion(version) {
+      document.getElementById("version").textContent = `v${version}`;
+    }
+
+    function showStatus(result) {
+      const details = [result.message];
+      if (result.template) details.push(`Template: ${result.template}`);
+      if (result.destination) details.push(`Output: ${result.destination}`);
+      if (result.backend) details.push(`Backend: ${result.backend}`);
+      status.textContent = details.join("\n");
+      status.className = "status";
+      if (result.skipped) {
+        status.classList.add("status-skipped");
+      } else if (result.ok) {
+        status.classList.add("status-success");
+      } else {
+        status.classList.add("status-error");
+      }
+    }
+
+    async function initialize() {
+      try {
+        const data = await window.pywebview.api.get_initial_data();
+        populateDropdowns(data.sets, data.inks);
+        setLabels(data.labels);
+        setVersion(data.version);
+        showStatus({ message: "Ready.", ok: true, skipped: false });
+      } catch (error) {
+        showStatus({ message: `Failed to load configuration: ${error}`, ok: false, skipped: false });
+        createBtn.disabled = true;
+      }
+    }
+
+    setDropdown.addEventListener("change", async () => {
+      try {
+        const inks = await window.pywebview.api.get_inks(setDropdown.value);
+        populateInkDropdown(inks);
+      } catch (error) {
+        showStatus({ message: `Failed to load ink colors: ${error}`, ok: false, skipped: false });
+      }
+    });
+
+    createBtn.addEventListener("click", async () => {
+      createBtn.disabled = true;
+      try {
+        const result = await window.pywebview.api.create(
+          setDropdown.value, inkDropdown.value, serialInput.value
+        );
+        showStatus(result);
+      } catch (error) {
+        showStatus({ message: `Failed to create datasheet: ${error}`, ok: false, skipped: false });
+      } finally {
+        createBtn.disabled = false;
+      }
+    });
+
+    window.addEventListener("pywebviewready", initialize);
+  </script>
+</body>
+</html>

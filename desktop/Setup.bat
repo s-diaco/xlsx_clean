@@ -1,5 +1,5 @@
 @echo off
-REM One-time Windows setup with uv: sync deps from uv.lock, Desktop shortcut.
+REM One-time Windows setup with uv: sync deps from uv.lock.
 setlocal
 cd /d "%~dp0\.."
 
@@ -20,14 +20,6 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo Creating Desktop shortcut...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-DesktopShortcut.ps1"
-if errorlevel 1 (
-  echo Desktop shortcut step failed.
-  pause
-  exit /b 1
-)
-
 echo.
-echo Setup complete. Double-click the New QC Sheet icon on your Desktop.
+echo Setup complete. Create your own shortcut to desktop\XlsxClean.vbs.
 pause
