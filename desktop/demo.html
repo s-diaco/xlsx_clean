@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>New QC Sheet · 0.2.0</title>
+  <!--
+    Static UI mock of src/xlsx_clean/web_app.py (_build_page).
+    Demo only — no create-datasheet behavior.
+  -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0f766e",
+            secondary: "#115e59",
+            accent: "#14b8a6",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+    .field {
+      position: relative;
+      width: 100%;
+    }
+    .field label {
+      position: absolute;
+      top: -0.55rem;
+      left: 0.75rem;
+      padding: 0 0.25rem;
+      font-size: 0.75rem;
+      line-height: 1;
+      color: #0f766e;
+      background: #fff;
+      z-index: 1;
+    }
+    .field select,
+    .field input {
+      width: 100%;
+      appearance: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.25rem;
+      background: #fff;
+      padding: 0.85rem 2.25rem 0.85rem 0.85rem;
+      font-size: 1rem;
+      color: #0f172a;
+      outline: none;
+    }
+    .field select:focus,
+    .field input:focus {
+      border-color: #0f766e;
+      box-shadow: inset 0 0 0 1px #0f766e;
+    }
+    .field .chevron {
+      pointer-events: none;
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-size: 0.75rem;
+    }
+    .btn-primary {
+      width: 100%;
+      border: none;
+      border-radius: 0.25rem;
+      background: #0f766e;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      padding: 0.7rem 1rem;
+      cursor: default;
+    }
+    .btn-primary:hover {
+      background: #115e59;
+    }
+  </style>
+</head>
+<body>
+  <main class="w-full max-w-xl mx-auto p-6 flex flex-col gap-4">
+    <h1 class="text-3xl font-bold text-teal-800 m-0">New QC Sheet</h1>
+    <p class="text-gray-600 m-0">
+      Create a new QC datasheet from the latest matching workbook.
+    </p>
+
+    <div class="field">
+      <label>Select Set</label>
+      <select aria-label="Select Set" tabindex="-1">
+        <option selected>Kimia Razi</option>
+        <option>inco</option>
+      </select>
+      <span class="chevron" aria-hidden="true">▾</span>
+    </div>
+
+    <div class="field">
+      <label>Select Ink Color</label>
+      <select aria-label="Select Ink Color" tabindex="-1">
+        <option selected>KRCY1100T Blue</option>
+        <option>KRBK1300T Black</option>
+        <option>KRBK1314T Black</option>
+        <option>KRBR1200T Brown</option>
+        <option>KRBG1600T Beige</option>
+        <option>KRHN1700T Honey</option>
+        <option>KRPK1500T Pink</option>
+      </select>
+      <span class="chevron" aria-hidden="true">▾</span>
+    </div>
+
+    <div class="field">
+      <label>Serial:</label>
+      <input
+        type="text"
+        placeholder="e.g. 1234/A"
+        value=""
+        aria-label="Serial"
+        tabindex="-1"
+        readonly
+      />
+    </div>
+
+    <div class="field">
+      <label>Backend</label>
+      <select aria-label="Backend" tabindex="-1">
+        <option selected>ooxml</option>
+        <option>com</option>
+      </select>
+      <span class="chevron" aria-hidden="true">▾</span>
+    </div>
+
+    <p class="text-sm text-amber-700 m-0">
+      COM backend requires Windows with Microsoft Excel; use ooxml here.
+    </p>
+
+    <div class="w-full p-3 rounded bg-gray-50 text-slate-700">
+      Ready.
+    </div>
+
+    <button type="button" class="btn-primary" tabindex="-1">
+      Create datasheet
+    </button>
+
+    <p class="w-full text-right text-xs text-gray-400 m-0">v0.2.0</p>
+  </main>
+</body>
+</html>
+

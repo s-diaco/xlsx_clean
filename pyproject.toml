@@ -7,7 +7,7 @@ authors = [
 ]
 dependencies = [
     "beaupy>=3.12.0",
-    "dearpygui>=2.0.0",
+    "pywebview>=5.0",
     "pywin32>=312; sys_platform == 'win32'",
 ]
 readme = "README.md"
@@ -36,10 +36,18 @@ packages = ["src/xlsx_clean"]
 "src/xlsx_clean/file_data.csv" = "xlsx_clean/file_data.csv"
 "src/xlsx_clean/strings.txt" = "xlsx_clean/strings.txt"
 "src/xlsx_clean/new_xslx.bat" = "xlsx_clean/new_xslx.bat"
-"src/xlsx_clean/fonts" = "xlsx_clean/fonts"
+
+[dependency-groups]
+test = [
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.uv]
 package = true
+default-groups = ["test"]
 
 # Version bumps: `uvx bump-my-version bump patch|minor|major`
 # current_version falls back to [project].version above.
