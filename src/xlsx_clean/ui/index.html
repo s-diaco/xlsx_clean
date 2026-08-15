@@ -597,6 +597,9 @@
       };
 
       inputEl.addEventListener("focus", open);
+      inputEl.addEventListener("mousedown", () => {
+        open();
+      });
       inputEl.addEventListener("input", () => {
         inputDirty = true;
         if (!openState) open();

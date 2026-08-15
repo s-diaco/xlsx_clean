@@ -33,6 +33,7 @@ def test_ui_asset_exists_and_has_required_bridge_content():
         "api.create(",
         "finally",
         'inputEl.value = selectEl.value || ""',
+        'inputEl.addEventListener("mousedown"',
     ):
         assert expected in content
 
