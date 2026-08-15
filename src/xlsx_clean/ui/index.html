@@ -184,49 +184,31 @@
       line-height: 1.5;
     }
 
-    .fields { display: grid; gap: 22px; }
+    .fields { display: grid; gap: 18px; }
 
     .field {
       position: relative;
       display: block;
+      padding-top: 8px;
     }
 
     .field-label {
       position: absolute;
-      z-index: 2;
-      top: 50%;
-      left: 12px;
-      padding: 0 4px;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 1rem;
-      line-height: 1;
-      pointer-events: none;
-      transform: translateY(-50%);
-      transform-origin: left center;
-      transition:
-        top 180ms var(--ease),
-        font-size 180ms var(--ease),
-        color 180ms var(--ease),
-        background-color 180ms var(--ease);
-    }
-
-    .field.is-floated .field-label,
-    .field:focus-within .field-label {
+      z-index: 1;
       top: 0;
-      font-size: 0.75rem;
+      left: 11px;
+      padding: 0 4px;
       background: var(--label-bg);
-      color: var(--text-muted);
-    }
-
-    .field:focus-within .field-label {
       color: var(--primary);
+      font-size: 0.75rem;
+      line-height: 1rem;
+      pointer-events: none;
     }
 
     select, input {
       width: 100%;
       min-height: 54px;
-      padding: 16px 12px;
+      padding: 16px 12px 6px;
       border: 1px solid var(--border-strong);
       border-radius: var(--radius-sm);
       outline: none;
@@ -234,14 +216,6 @@
       color: var(--text);
       font: inherit;
       transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease);
-    }
-
-    .field input::placeholder {
-      color: transparent;
-    }
-
-    .field:focus-within input::placeholder {
-      color: var(--text-dim);
     }
 
     .combobox-input {
@@ -513,14 +487,6 @@
     });
     syncThemeToggle();
 
-    function syncFloat(inputEl) {
-      const field = inputEl.closest(".field");
-      if (!field) return;
-      const filled = inputEl.value.trim().length > 0;
-      const focused = document.activeElement === inputEl;
-      field.classList.toggle("is-floated", filled || focused);
-    }
-
     // Builds a searchable combobox. The underlying <select> stays as the
     // semantic source of truth; the visible widget is a text <input> plus a
     // listbox panel that filters options as the user types.
@@ -594,7 +560,6 @@
         inputDirty = false;
         close();
         inputEl.focus();
-        syncFloat(inputEl);
       };
 
       const syncDisabled = () => {
@@ -630,18 +595,13 @@
         }
         inputDirty = false;
         syncDisabled();
-        syncFloat(inputEl);
       };
 
-      inputEl.addEventListener("focus", () => {
-        syncFloat(inputEl);
-        open();
-      });
+      inputEl.addEventListener("focus", open);
       inputEl.addEventListener("input", () => {
         inputDirty = true;
         if (!openState) open();
         filter();
-        syncFloat(inputEl);
       });
       inputEl.addEventListener("blur", () => {
         // Defer close so a mousedown on a panel option can fire first.
@@ -651,7 +611,6 @@
             inputDirty = false;
           }
           close();
-          syncFloat(inputEl);
         }, 0);
       });
       inputEl.addEventListener("keydown", (event) => {
@@ -790,11 +749,6 @@
         createBtn.disabled = false;
       }
     });
-
-    serialInput.addEventListener("focus", () => syncFloat(serialInput));
-    serialInput.addEventListener("input", () => syncFloat(serialInput));
-    serialInput.addEventListener("blur", () => syncFloat(serialInput));
-    syncFloat(serialInput);
 
     window.addEventListener("pywebviewready", initialize);
   </script>

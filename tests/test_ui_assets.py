@@ -32,8 +32,6 @@ def test_ui_asset_exists_and_has_required_bridge_content():
         "get_inks(setDropdown.value)",
         "api.create(",
         "finally",
-        "is-floated",
-        "syncFloat(",
     ):
         assert expected in content
 
