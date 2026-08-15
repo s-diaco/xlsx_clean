@@ -1,5 +1,6 @@
 import re
 from html.parser import HTMLParser
+from pathlib import Path
 
 from xlsx_clean.paths import package_file
 
@@ -31,6 +32,8 @@ def test_ui_asset_exists_and_has_required_bridge_content():
         "get_inks(setDropdown.value)",
         "api.create(",
         "finally",
+        'inputEl.value = selectEl.value || ""',
+        'inputEl.addEventListener("mousedown", () => {\n        open();\n      });',
     ):
         assert expected in content
 
@@ -38,6 +41,12 @@ def test_ui_asset_exists_and_has_required_bridge_content():
     assert "quasar" not in content.lower()
     assert "cdn" not in content.lower()
     assert not re.search(r"https?://", content)
+    assert "#0b0e14" in content
+    assert "#e54d5e" in content
+    assert "background-size: var(--grid-size) var(--grid-size)" in content
+    assert "background: transparent" in content
+    assert "tl-red" not in content
+    assert 'class="chrome"' not in content
     StrictHtmlParser().feed(content)
 
 
@@ -48,3 +57,7 @@ def test_ui_font_sources_are_bundled_locally():
     assert font_urls == ["../fonts/Inter-Regular.ttf", "../fonts/Inter-Bold.ttf"]
     for font_url in font_urls:
         assert (package_file("ui") / font_url).resolve().is_file()
+
+
+def test_demo_html_is_not_shipped():
+    assert not Path("desktop/demo.html").exists()
