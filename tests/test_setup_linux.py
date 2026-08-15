@@ -12,7 +12,8 @@ def test_setup_linux_pins_system_python_for_uv_sync():
         if line.strip().startswith("uv sync")
     ]
     assert sync_lines == [
-        "uv sync --python /usr/bin/python3 --no-managed-python --python-preference only-system"
+        "uv sync --python /usr/bin/python3 --no-managed-python"
     ]
+    assert "--python-preference" not in script
     assert "uv sync --active" not in script
     assert "include-system-site-packages = true" in script

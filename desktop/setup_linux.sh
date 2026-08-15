@@ -74,7 +74,7 @@ fi
 echo "Syncing dependencies..."
 # Pin the same interpreter so uv does not honor .python-version (3.12) and
 # recreate a managed venv without apt gi (python3-gi).
-uv sync --python /usr/bin/python3 --no-managed-python --python-preference only-system
+uv sync --python /usr/bin/python3 --no-managed-python
 
 if ! .venv/bin/python -c 'import gi' >/dev/null 2>&1; then
   echo "Restoring system site packages on .venv so apt gi is importable..."
