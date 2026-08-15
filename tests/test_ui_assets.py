@@ -38,6 +38,9 @@ def test_ui_asset_exists_and_has_required_bridge_content():
     assert "quasar" not in content.lower()
     assert "cdn" not in content.lower()
     assert not re.search(r"https?://", content)
+    assert "#0b0e14" in content
+    assert "#e54d5e" in content
+    assert "background-size: var(--grid-size) var(--grid-size)" in content
     StrictHtmlParser().feed(content)
 
 

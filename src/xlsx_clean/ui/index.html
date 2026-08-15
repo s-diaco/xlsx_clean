@@ -4,6 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New QC Sheet</title>
+  <script>
+    try {
+      if (localStorage.getItem("xlsx-clean-theme") === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    } catch (error) {
+      /* localStorage may be unavailable in some WebView embeds */
+    }
+  </script>
   <style>
     @font-face {
       font-family: "Inter";
@@ -22,17 +31,56 @@
     }
 
     :root {
-      --primary: #0f766e;
-      --secondary: #115e59;
-      --accent: #14b8a6;
-      --slate-50: #f8fafc;
-      --slate-300: #cbd5e1;
-      --slate-500: #64748b;
-      --slate-700: #334155;
-      --status-ready: #f8fafc;
-      --status-success: #f0fdfa;
-      --status-skipped: #fffbeb;
-      --status-error: #fef2f2;
+      --primary: #e54d5e;
+      --primary-hover: #c93d4e;
+      --accent: #6366f1;
+      --accent-2: #8b5cf6;
+      --accent-3: #a855f7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --tl-red: #ff5f56;
+      --tl-yellow: #ffbd2e;
+      --tl-green: #27c93f;
+      --bg: #0b0e14;
+      --bg-alt: #111520;
+      --surface: #161b22;
+      --surface-2: #1c2230;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --grid-line: rgba(255, 255, 255, 0.06);
+      --grid-size: 32px;
+      --text: #e6e6ef;
+      --text-muted: #8b8b9e;
+      --text-dim: #5a5a6e;
+      --grad-brand: linear-gradient(135deg, var(--primary), var(--accent-3));
+      --grad-soft: linear-gradient(135deg, rgba(229, 77, 94, 0.12), rgba(168, 85, 247, 0.12));
+      --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: ui-monospace, "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+      --radius: 14px;
+      --radius-sm: 9px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --status-ready: transparent;
+      --status-success: rgba(34, 197, 94, 0.12);
+      --status-skipped: rgba(245, 158, 11, 0.12);
+      --status-error: rgba(239, 68, 68, 0.12);
+    }
+
+    html[data-theme="light"] {
+      --bg: #f9f9fb;
+      --bg-alt: #f0f0f5;
+      --surface: #ffffff;
+      --surface-2: #f5f5fa;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.14);
+      --grid-line: rgba(0, 0, 0, 0.07);
+      --text: #1a1a2e;
+      --text-muted: #71717a;
+      --text-dim: #9a9aa5;
+      --grad-soft: linear-gradient(135deg, rgba(229, 77, 94, 0.08), rgba(168, 85, 247, 0.08));
+      --status-success: rgba(34, 197, 94, 0.1);
+      --status-skipped: rgba(245, 158, 11, 0.12);
+      --status-error: rgba(239, 68, 68, 0.1);
     }
 
     * { box-sizing: border-box; }
@@ -40,10 +88,24 @@
     body {
       min-height: 100vh;
       margin: 0;
-      background: var(--slate-50);
-      color: var(--slate-700);
-      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
       font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: var(--grid-size) var(--grid-size);
     }
 
     .page {
@@ -58,19 +120,109 @@
       flex-direction: column;
       width: min(100%, 36rem);
       margin: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 60px -28px rgb(0 0 0 / 55%);
+      overflow: hidden;
+    }
+
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 0 14px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .traffic {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .traffic span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .tl-red { background: var(--tl-red); }
+    .tl-yellow { background: var(--tl-yellow); }
+    .tl-green { background: var(--tl-green); }
+
+    .chrome-title {
+      flex: 1;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+      height: 28px;
+      padding: 0 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-alt);
+      border-color: var(--border-strong);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent-3);
+      outline-offset: 2px;
+    }
+
+    .panel-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 22px 22px 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     h1 {
       margin: 0;
-      color: var(--secondary);
+      color: var(--text);
       font-size: 1.875rem;
       font-weight: 700;
-      line-height: 2.25rem;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
     }
 
     .subtitle {
-      margin: 8px 0 24px;
-      color: #475569;
+      margin: 8px 0 22px;
+      color: var(--text-muted);
       line-height: 1.5;
     }
 
@@ -88,7 +240,7 @@
       top: 0;
       left: 11px;
       padding: 0 4px;
-      background: var(--slate-50);
+      background: var(--surface);
       color: var(--primary);
       font-size: 0.75rem;
       line-height: 1rem;
@@ -99,13 +251,13 @@
       width: 100%;
       min-height: 54px;
       padding: 16px 12px 6px;
-      border: 1px solid var(--slate-300);
-      border-radius: 4px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
       outline: none;
-      background: #fff;
-      color: #0f172a;
+      background: var(--surface-2);
+      color: var(--text);
       font: inherit;
-      transition: border-color 150ms ease, box-shadow 150ms ease;
+      transition: border-color 150ms var(--ease), box-shadow 150ms var(--ease);
     }
 
     .combobox-input {
@@ -135,7 +287,7 @@
       bottom: 0;
       display: flex;
       align-items: center;
-      color: var(--slate-500);
+      color: var(--text-muted);
       pointer-events: none;
       font-size: 0.75rem;
     }
@@ -149,10 +301,10 @@
       max-height: 220px;
       overflow-y: auto;
       padding: 4px 0;
-      background: #fff;
-      border: 1px solid var(--slate-300);
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgb(15 23 42 / 12%);
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 12px 32px rgb(0 0 0 / 35%);
     }
 
     .combobox-panel[hidden] { display: none; }
@@ -160,49 +312,49 @@
     .combobox-option {
       padding: 8px 12px;
       cursor: pointer;
-      color: var(--slate-700);
+      color: var(--text);
       line-height: 1.25;
     }
 
     .combobox-option[aria-selected="true"],
     .combobox-option:hover {
-      background: var(--status-success);
-      color: var(--secondary);
+      background: var(--grad-soft);
+      color: var(--text);
     }
 
     .combobox-option[hidden] { display: none; }
 
     .combobox-empty {
       padding: 8px 12px;
-      color: var(--slate-500);
+      color: var(--text-muted);
       font-style: italic;
     }
 
     select:focus, input:focus,
     .combobox-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgb(20 184 166 / 25%);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgb(99 102 241 / 28%);
     }
 
     select:disabled, input:disabled,
     .combobox-input:disabled {
       cursor: not-allowed;
-      background: #f1f5f9;
-      color: var(--slate-500);
+      background: var(--bg-alt);
+      color: var(--text-dim);
     }
 
     .divider {
       height: 1px;
-      margin: 24px 0;
-      background: var(--slate-300);
+      margin: 22px 0;
+      background: var(--border);
     }
 
-    button {
+    #create-button {
       width: 100%;
-      min-height: 42px;
+      min-height: 44px;
       border: 0;
-      border-radius: 4px;
-      background: var(--primary);
+      border-radius: var(--radius-sm);
+      background: var(--grad-brand);
       color: #fff;
       cursor: pointer;
       font: inherit;
@@ -210,46 +362,74 @@
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      transition: background-color 150ms ease, box-shadow 150ms ease;
+      box-shadow: 0 8px 22px -10px var(--primary);
+      transition: transform 150ms var(--ease), box-shadow 150ms var(--ease), filter 150ms var(--ease);
     }
 
-    button:hover:not(:disabled) {
-      background: var(--secondary);
-      box-shadow: 0 2px 5px rgb(15 118 110 / 25%);
+    #create-button:hover:not(:disabled) {
+      filter: brightness(1.06);
+      box-shadow: 0 10px 26px -8px var(--primary);
     }
 
-    button:focus-visible {
-      outline: 2px solid var(--accent);
+    #create-button:focus-visible {
+      outline: 2px solid var(--accent-3);
       outline-offset: 2px;
     }
 
-    button:disabled { cursor: not-allowed; opacity: 0.65; }
+    #create-button:disabled { cursor: not-allowed; opacity: 0.65; }
+
+    .terminal {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .terminal-bar {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
 
     .status {
       min-height: 48px;
-      margin-top: 16px;
+      margin: 0;
       padding: 12px;
-      border-radius: 4px;
-      color: var(--slate-700);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
       line-height: 1.45;
       white-space: pre-wrap;
     }
 
+    .status::before {
+      content: "$ ";
+      color: var(--primary);
+      font-weight: 700;
+    }
+
     .status-ready { background: var(--status-ready); }
-    .status-success { background: var(--status-success); color: #115e59; }
-    .status-skipped { background: var(--status-skipped); color: #92400e; }
-    .status-error { background: var(--status-error); color: #b91c1c; }
+    .status-success { background: var(--status-success); color: var(--success); }
+    .status-skipped { background: var(--status-skipped); color: var(--warning); }
+    .status-error { background: var(--status-error); color: var(--error); }
 
     .version {
       margin: auto 0 0;
-      padding-top: 24px;
-      color: #94a3b8;
+      padding-top: 16px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
       font-size: 0.75rem;
       text-align: right;
     }
 
     @media (max-width: 480px) {
-      .page { padding: 18px; }
+      .page { padding: 14px; }
+      .panel-body { padding: 18px 16px 14px; }
       h1 { font-size: 1.5rem; }
     }
   </style>
@@ -257,56 +437,78 @@
 <body>
   <main class="page">
     <section class="panel" aria-labelledby="heading">
-      <h1 id="heading">New QC Sheet</h1>
-      <p class="subtitle">Create a new QC datasheet from the latest matching workbook.</p>
-
-      <div class="fields">
-        <label class="field combobox" for="set-dropdown-input">
-          <span id="set-label" class="field-label">Select Set</span>
-          <input
-            id="set-dropdown-input"
-            class="combobox-input"
-            type="text"
-            autocomplete="off"
-            spellcheck="false"
-            role="combobox"
-            aria-expanded="false"
-            aria-controls="set-dropdown-panel"
-            aria-autocomplete="list"
-            aria-labelledby="set-label"
-            placeholder=" ">
-          <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
-          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
-          <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
-        </label>
-        <label class="field combobox" for="ink-dropdown-input">
-          <span id="ink-label" class="field-label">Select Ink Color</span>
-          <input
-            id="ink-dropdown-input"
-            class="combobox-input"
-            type="text"
-            autocomplete="off"
-            spellcheck="false"
-            role="combobox"
-            aria-expanded="false"
-            aria-controls="ink-dropdown-panel"
-            aria-autocomplete="list"
-            aria-labelledby="ink-label"
-            placeholder=" ">
-          <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
-          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
-          <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
-        </label>
-        <label class="field" for="serial-input">
-          <span id="serial-label" class="field-label">Serial:</span>
-          <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
-        </label>
+      <div class="chrome">
+        <span class="traffic" aria-hidden="true">
+          <span class="tl-red"></span>
+          <span class="tl-yellow"></span>
+          <span class="tl-green"></span>
+        </span>
+        <span class="chrome-title">xlsx-clean — New QC Sheet</span>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          aria-label="Switch to light theme"
+          title="Switch theme">
+          Aa
+        </button>
       </div>
+      <div class="panel-body">
+        <p class="eyebrow">QC datasheet</p>
+        <h1 id="heading">New QC Sheet</h1>
+        <p class="subtitle">Create a new QC datasheet from the latest matching workbook.</p>
 
-      <div class="divider"></div>
-      <button id="create-button" type="button">Create datasheet</button>
-      <div id="status" class="status status-ready" role="status">Loading configuration...</div>
-      <p id="version" class="version"></p>
+        <div class="fields">
+          <label class="field combobox" for="set-dropdown-input">
+            <span id="set-label" class="field-label">Select Set</span>
+            <input
+              id="set-dropdown-input"
+              class="combobox-input"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="set-dropdown-panel"
+              aria-autocomplete="list"
+              aria-labelledby="set-label"
+              placeholder=" ">
+            <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
+            <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+            <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
+          </label>
+          <label class="field combobox" for="ink-dropdown-input">
+            <span id="ink-label" class="field-label">Select Ink Color</span>
+            <input
+              id="ink-dropdown-input"
+              class="combobox-input"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="ink-dropdown-panel"
+              aria-autocomplete="list"
+              aria-labelledby="ink-label"
+              placeholder=" ">
+            <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
+            <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+            <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
+          </label>
+          <label class="field" for="serial-input">
+            <span id="serial-label" class="field-label">Serial:</span>
+            <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
+          </label>
+        </div>
+
+        <div class="divider"></div>
+        <button id="create-button" type="button">Create datasheet</button>
+        <div class="terminal">
+          <div class="terminal-bar">status</div>
+          <div id="status" class="status status-ready" role="status">Loading configuration...</div>
+        </div>
+        <p id="version" class="version"></p>
+      </div>
     </section>
   </main>
 
@@ -320,6 +522,39 @@
     const serialInput = document.getElementById("serial-input");
     const createBtn = document.getElementById("create-button");
     const status = document.getElementById("status");
+    const themeToggle = document.getElementById("theme-toggle");
+
+    function isLightTheme() {
+      return document.documentElement.getAttribute("data-theme") === "light";
+    }
+
+    function syncThemeToggle() {
+      const light = isLightTheme();
+      themeToggle.setAttribute(
+        "aria-label",
+        light ? "Switch to dark theme" : "Switch to light theme"
+      );
+      themeToggle.textContent = light ? "Dark" : "Light";
+    }
+
+    function applyTheme(theme) {
+      if (theme === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+      }
+      try {
+        localStorage.setItem("xlsx-clean-theme", theme);
+      } catch (error) {
+        /* ignore quota / privacy mode */
+      }
+      syncThemeToggle();
+    }
+
+    themeToggle.addEventListener("click", () => {
+      applyTheme(isLightTheme() ? "dark" : "light");
+    });
+    syncThemeToggle();
 
     // Builds a searchable combobox. The underlying <select> stays as the
     // semantic source of truth; the visible widget is a text <input> plus a

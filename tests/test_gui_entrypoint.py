@@ -37,7 +37,7 @@ def test_main_initializes_api_before_opening_window():
                 "width": 900,
                 "height": 700,
                 "min_size": (450, 400),
-                "background_color": "#f8fafc",
+                "background_color": "#0b0e14",
             },
         ),
         ("start",),

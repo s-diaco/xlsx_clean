@@ -130,7 +130,7 @@ def main(argv: list[str] | None = None) -> None:
         width=args.width,
         height=args.height,
         min_size=(450, 400),
-        background_color="#f8fafc",
+        background_color="#0b0e14",
     )
     webview.start()
 
