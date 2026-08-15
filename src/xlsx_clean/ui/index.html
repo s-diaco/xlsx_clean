@@ -39,9 +39,6 @@
       --success: #22c55e;
       --warning: #f59e0b;
       --error: #ef4444;
-      --tl-red: #ff5f56;
-      --tl-yellow: #ffbd2e;
-      --tl-green: #27c93f;
       --bg: #0b0e14;
       --bg-alt: #111520;
       --surface: #161b22;
@@ -120,61 +117,28 @@
       flex-direction: column;
       width: min(100%, 36rem);
       margin: auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: 0 24px 60px -28px rgb(0 0 0 / 55%);
-      overflow: hidden;
+      background: transparent;
     }
 
-    .chrome {
+    .heading-row {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 40px;
-      padding: 0 14px;
-      background: var(--surface-2);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .traffic {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .traffic span {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .tl-red { background: var(--tl-red); }
-    .tl-yellow { background: var(--tl-yellow); }
-    .tl-green { background: var(--tl-green); }
-
-    .chrome-title {
-      flex: 1;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.02em;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
     }
 
     .theme-toggle {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       min-width: 52px;
       height: 28px;
+      margin-top: 2px;
       padding: 0 8px;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      background: var(--surface);
+      background: var(--surface-2);
       color: var(--text);
       cursor: pointer;
       font: inherit;
@@ -193,13 +157,6 @@
     .theme-toggle:focus-visible {
       outline: 2px solid var(--accent-3);
       outline-offset: 2px;
-    }
-
-    .panel-body {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      padding: 22px 22px 18px;
     }
 
     .eyebrow {
@@ -240,7 +197,7 @@
       top: 0;
       left: 11px;
       padding: 0 4px;
-      background: var(--surface);
+      background: var(--bg);
       color: var(--primary);
       font-size: 0.75rem;
       line-height: 1rem;
@@ -378,28 +335,12 @@
 
     #create-button:disabled { cursor: not-allowed; opacity: 0.65; }
 
-    .terminal {
-      margin-top: 16px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-      overflow: hidden;
-    }
-
-    .terminal-bar {
-      padding: 6px 12px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-dim);
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
     .status {
       min-height: 48px;
-      margin: 0;
+      margin-top: 16px;
       padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
       color: var(--text-muted);
       font-family: var(--font-mono);
       font-size: 0.8rem;
@@ -429,7 +370,6 @@
 
     @media (max-width: 480px) {
       .page { padding: 14px; }
-      .panel-body { padding: 18px 16px 14px; }
       h1 { font-size: 1.5rem; }
     }
   </style>
@@ -437,13 +377,11 @@
 <body>
   <main class="page">
     <section class="panel" aria-labelledby="heading">
-      <div class="chrome">
-        <span class="traffic" aria-hidden="true">
-          <span class="tl-red"></span>
-          <span class="tl-yellow"></span>
-          <span class="tl-green"></span>
-        </span>
-        <span class="chrome-title">xlsx-clean — New QC Sheet</span>
+      <div class="heading-row">
+        <div>
+          <p class="eyebrow">QC datasheet</p>
+          <h1 id="heading">New QC Sheet</h1>
+        </div>
         <button
           id="theme-toggle"
           class="theme-toggle"
@@ -453,62 +391,55 @@
           Aa
         </button>
       </div>
-      <div class="panel-body">
-        <p class="eyebrow">QC datasheet</p>
-        <h1 id="heading">New QC Sheet</h1>
-        <p class="subtitle">Create a new QC datasheet from the latest matching workbook.</p>
+      <p class="subtitle">Create a new QC datasheet from the latest matching workbook.</p>
 
-        <div class="fields">
-          <label class="field combobox" for="set-dropdown-input">
-            <span id="set-label" class="field-label">Select Set</span>
-            <input
-              id="set-dropdown-input"
-              class="combobox-input"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              role="combobox"
-              aria-expanded="false"
-              aria-controls="set-dropdown-panel"
-              aria-autocomplete="list"
-              aria-labelledby="set-label"
-              placeholder=" ">
-            <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
-            <span class="combobox-caret" aria-hidden="true">&#9662;</span>
-            <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
-          </label>
-          <label class="field combobox" for="ink-dropdown-input">
-            <span id="ink-label" class="field-label">Select Ink Color</span>
-            <input
-              id="ink-dropdown-input"
-              class="combobox-input"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              role="combobox"
-              aria-expanded="false"
-              aria-controls="ink-dropdown-panel"
-              aria-autocomplete="list"
-              aria-labelledby="ink-label"
-              placeholder=" ">
-            <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
-            <span class="combobox-caret" aria-hidden="true">&#9662;</span>
-            <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
-          </label>
-          <label class="field" for="serial-input">
-            <span id="serial-label" class="field-label">Serial:</span>
-            <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
-          </label>
-        </div>
-
-        <div class="divider"></div>
-        <button id="create-button" type="button">Create datasheet</button>
-        <div class="terminal">
-          <div class="terminal-bar">status</div>
-          <div id="status" class="status status-ready" role="status">Loading configuration...</div>
-        </div>
-        <p id="version" class="version"></p>
+      <div class="fields">
+        <label class="field combobox" for="set-dropdown-input">
+          <span id="set-label" class="field-label">Select Set</span>
+          <input
+            id="set-dropdown-input"
+            class="combobox-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="set-dropdown-panel"
+            aria-autocomplete="list"
+            aria-labelledby="set-label"
+            placeholder=" ">
+          <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
+          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+          <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
+        </label>
+        <label class="field combobox" for="ink-dropdown-input">
+          <span id="ink-label" class="field-label">Select Ink Color</span>
+          <input
+            id="ink-dropdown-input"
+            class="combobox-input"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="ink-dropdown-panel"
+            aria-autocomplete="list"
+            aria-labelledby="ink-label"
+            placeholder=" ">
+          <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
+          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+          <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
+        </label>
+        <label class="field" for="serial-input">
+          <span id="serial-label" class="field-label">Serial:</span>
+          <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
+        </label>
       </div>
+
+      <div class="divider"></div>
+      <button id="create-button" type="button">Create datasheet</button>
+      <div id="status" class="status status-ready" role="status">Loading configuration...</div>
+      <p id="version" class="version"></p>
     </section>
   </main>
 
