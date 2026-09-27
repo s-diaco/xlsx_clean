@@ -394,51 +394,53 @@
       </div>
       <p class="subtitle">Create a new QC datasheet from the latest matching workbook.</p>
 
-      <div class="fields">
-        <label class="field combobox" for="set-dropdown-input">
-          <span id="set-label" class="field-label">Select Set</span>
-          <input
-            id="set-dropdown-input"
-            class="combobox-input"
-            type="text"
-            autocomplete="off"
-            spellcheck="false"
-            role="combobox"
-            aria-expanded="false"
-            aria-controls="set-dropdown-panel"
-            aria-autocomplete="list"
-            aria-labelledby="set-label"
-            placeholder=" ">
-          <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
-          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
-          <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
-        </label>
-        <label class="field combobox" for="ink-dropdown-input">
-          <span id="ink-label" class="field-label">Select Ink Color</span>
-          <input
-            id="ink-dropdown-input"
-            class="combobox-input"
-            type="text"
-            autocomplete="off"
-            spellcheck="false"
-            role="combobox"
-            aria-expanded="false"
-            aria-controls="ink-dropdown-panel"
-            aria-autocomplete="list"
-            aria-labelledby="ink-label"
-            placeholder=" ">
-          <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
-          <span class="combobox-caret" aria-hidden="true">&#9662;</span>
-          <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
-        </label>
-        <label class="field" for="serial-input">
-          <span id="serial-label" class="field-label">Serial:</span>
-          <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
-        </label>
-      </div>
+      <form id="create-form">
+        <div class="fields">
+          <label class="field combobox" for="set-dropdown-input">
+            <span id="set-label" class="field-label">Select Set</span>
+            <input
+              id="set-dropdown-input"
+              class="combobox-input"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="set-dropdown-panel"
+              aria-autocomplete="list"
+              aria-labelledby="set-label"
+              placeholder=" ">
+            <select id="set-dropdown" aria-labelledby="set-label" tabindex="-1"></select>
+            <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+            <div id="set-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="set-label" hidden></div>
+          </label>
+          <label class="field combobox" for="ink-dropdown-input">
+            <span id="ink-label" class="field-label">Select Ink Color</span>
+            <input
+              id="ink-dropdown-input"
+              class="combobox-input"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="ink-dropdown-panel"
+              aria-autocomplete="list"
+              aria-labelledby="ink-label"
+              placeholder=" ">
+            <select id="ink-dropdown" aria-labelledby="ink-label" tabindex="-1"></select>
+            <span class="combobox-caret" aria-hidden="true">&#9662;</span>
+            <div id="ink-dropdown-panel" class="combobox-panel" role="listbox" aria-labelledby="ink-label" hidden></div>
+          </label>
+          <label class="field" for="serial-input">
+            <span id="serial-label" class="field-label">Serial:</span>
+            <input id="serial-input" type="text" placeholder="e.g. 1234/A" aria-labelledby="serial-label">
+          </label>
+        </div>
 
-      <div class="divider"></div>
-      <button id="create-button" type="button">Create datasheet</button>
+        <div class="divider"></div>
+        <button id="create-button" type="submit">Create datasheet</button>
+      </form>
       <div id="status" class="status status-ready" role="status">Loading configuration...</div>
       <p id="version" class="version"></p>
     </section>
@@ -452,6 +454,7 @@
     const setPanel = document.getElementById("set-dropdown-panel");
     const inkPanel = document.getElementById("ink-dropdown-panel");
     const serialInput = document.getElementById("serial-input");
+    const createForm = document.getElementById("create-form");
     const createBtn = document.getElementById("create-button");
     const status = document.getElementById("status");
     const themeToggle = document.getElementById("theme-toggle");
@@ -738,7 +741,7 @@
       }
     });
 
-    createBtn.addEventListener("click", async () => {
+    async function createDatasheet() {
       createBtn.disabled = true;
       try {
         const result = await window.pywebview.api.create(
@@ -750,6 +753,11 @@
       } finally {
         createBtn.disabled = false;
       }
+    }
+
+    createForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await createDatasheet();
     });
 
     window.addEventListener("pywebviewready", initialize);
